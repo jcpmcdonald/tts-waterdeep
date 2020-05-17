@@ -1,5 +1,46 @@
 --
 
+
+function getMinBounds(obj)
+  local center = obj.getBoundsNormalized().center
+  local size = obj.getBoundsNormalized().size
+  return {
+    x= center.x - (size.x / 2),
+    y= center.y - (size.y / 2),
+    z= center.z - (size.z / 2)
+  }
+end
+
+function getMaxBounds(obj)
+  local center = obj.getBoundsNormalized().center
+  local size = obj.getBoundsNormalized().size
+  return {
+    x= center.x + (size.x / 2),
+    y= center.y + (size.y / 2),
+    z= center.z + (size.z / 2)
+  }
+end
+
+function getMinBounds2(obj)
+  local center = obj.getBoundsNormalized().center
+  local size = obj.getBoundsNormalized().size
+  return {
+    x= math.min(center.x + (size.x / 2), center.x - (size.x / 2)),
+    y= math.min(center.y + (size.y / 2), center.y - (size.y / 2)),
+    z= math.min(center.z + (size.z / 2), center.z - (size.z / 2))
+  }
+end
+
+function getMaxBounds2(obj)
+  local center = obj.getBoundsNormalized().center
+  local size = obj.getBoundsNormalized().size
+  return {
+    x= math.max(center.x + (size.x / 2), center.x - (size.x / 2)),
+    y= math.max(center.y + (size.y / 2), center.y - (size.y / 2)),
+    z= math.max(center.z + (size.z / 2), center.z - (size.z / 2))
+  }
+end
+
 -- Gets all unlocked objects in the given zone
 function getUnlockedIn(zone)
   local all = nil
@@ -28,14 +69,14 @@ function getUnlockedInArea(targetId)
   
   local unlockedInArea = {}
   
-  local targetMin = getTopLeft(target)
-  local targetMax = getBottomRight(target)
+  local targetMin = getMinBounds(target)
+  local targetMax = getMaxBounds(target)
   
   -- Loop through all objects, and only add the unlocked ones that are inside the bounds of the given object to the return value
   for k, object in pairs(all) do
     if not object.getLock() then
-      local topLeft = getTopLeft(object)
-      local bottomRight = getBottomRight(object)
+      local topLeft = getMinBounds(object)
+      local bottomRight = getMaxBounds(object)
       if topLeft.x < targetMin.x
           and topLeft.z < targetMin.z
           and bottomRight.x > targetMax.x

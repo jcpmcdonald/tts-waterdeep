@@ -1,0 +1,61 @@
+--
+#include ../utils
+#include ReturnHome
+#include QuestManagement
+
+-- homeBoxIds = {'bf3a99', '093165'}
+-- homeBoardIds = {'97c397', 'f5fc8a'}
+
+boardId = 'd16e23'
+
+newRoundButton = {
+    label='End Round',
+    click_function='endOfRound',
+    position={-0.65,0.3,-0.19},
+    width=1400,
+    height=600,
+    font_size=240,
+    scale={0.07, 0.07, 0.07},
+    rotation={0, 90, 0}
+}
+
+function onLoad()
+  -- For each "home box", set this as home for every unlocked thing in it
+  -- for k, homeId in pairs(homeBoxIds) do
+  --   --local homeBox = getObjectFromGUID(homeId)
+  --   for k, agent in pairs(getUnlockedIn(homeId)) do
+  --     setHomeAndRotation(agent, homeId, agent.getRotation())
+  --   end
+  -- end
+  
+  -- for k, homeBoardId in pairs(homeBoardIds) do
+  --   print(# getUnlockedInArea(homeBoardId))
+  --   -- for k, agent in pairs(getUnlockedInArea(homeBoardId)) do
+  --   --   print(agent.getName())
+  --   --   -- setHomeAndRotation(agent, homeId, agent.getRotation())
+  --   -- end
+  -- end
+  
+  local board = getObjectFromGUID(boardId)
+  board.createButton(newRoundButton)
+  
+  initReturnHome()
+  initQuestManagement(board)
+  
+  local obj = getObjectFromGUID('09abdb')
+  local tl = getMinBounds(obj)
+  local br = getMaxBounds(obj)
+  print(tl.x)
+  print(br.x)
+end
+
+function setHomeAndRotation(pawn, homeId, rotation)
+  
+  pawn.script_state = JSON.encode({home=homeId, rotation=rotation})
+end
+
+
+
+function endOfRound()
+  returnHome2()
+end

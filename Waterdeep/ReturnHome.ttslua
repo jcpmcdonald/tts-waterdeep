@@ -1,6 +1,118 @@
 --
 
-function load()
-  -- body...
-  print("On load returning home!")
+
+local defaults = {
+  spaceBetween = nil,
+  elevation = nil
+}
+
+function initReturnHome(defaultSpaceBetween, defaultElevation)
+  defaults.spaceBetween = defaultSpaceBetween or 1
+  defaults.elevation = defaultElevation or 3
+end
+
+function returnHome()
+  local all = getAllObjects()
+  
+  local homesForObjects = {}
+  
+  -- Lookup all the returnable objects, and add them to a dictionary
+  for k, pawn in pairs(all) do
+    if not pawn.getLock() and pawn.script_state != '' then
+      local pawnState = JSON.decode(pawn.script_state)
+      if pawnState.home != nill then
+        if homesForObjects[pawnState.home] == nil then
+          homesForObjects[pawnState.home] = {pawn}
+        else
+          table.insert(homesForObjects[pawnState.home], pawn)
+        end
+      end
+    end
+  end
+  
+  -- For each distinct home, return all the objects for that home in a regular way
+  for homeId, objectsForHome in pairs(homesForObjects) do
+    
+    local home = getObjectFromGUID(homeId)
+    for k, pawn in pairs(objectsForHome) do
+      
+      local offset = (pawn.getBoundsNormalized().size.x / 2 + spacing * k - 1)
+      local x = home.getPosition().x - (home.getScale().x / 2) + offset
+      local y = home.getPosition().y
+      local z = home.getPosition().z
+      
+      local pawnState = JSON.decode(pawn.script_state)
+      pawn.setRotationSmooth(pawnState.rotation, false, false)
+      
+      local setPos = function() pawn.setPositionSmooth({x, y, z}, false, false) end
+      setPos()
+    end
+  end
+end
+
+
+function returnHome2()
+  
+  local homes = {
+    f5fc8a = {-- Grey Hands
+        pawnIds = {'09abdb', 'c82bc9', '88ea75', '4e7f70', 'd85c4c', '6c9926'},
+        rotation = Vector.new(0, 90, 0),
+        spacing = 0
+      },
+    a414f8 = {-- Harpers
+        pawnIds = {'c43e3e', 'f27fef', '2bb311', '097e57', 'e3db7f', '8ac1f3'},
+        rotation = Vector.new(0, 90, 0),
+        spacing = 1.5
+      }
+  }
+  
+  for homeId, homeInfo in pairs(homes) do
+    local homeBoard = getObjectFromGUID(homeId)
+    
+    for k, pawnId in pairs(homeInfo.pawnIds) do
+      local pawn = getObjectFromGUID(pawnId)
+      
+      local rotation = homeBoard.getRotation() + homeInfo.rotation
+      pawn.setRotationSmooth(rotation, false, false)
+      
+      local forward = homeBoard.getTransformForward()
+      local pos = homeBoard.getPosition()
+      local spacing = homeInfo.spacing or defaults.spacing
+      
+      -- Raise the pawns up just a little
+      local y = pos.y + (homeInfo.elevation or defaults.elevation)
+      
+      if math.abs(forward.x) > 0.9 then
+        local pawnWidth = pawn.getBoundsNormalized().size.z
+        local boardWidth = homeBoard.getBoundsNormalized().size.x
+        local offsetFromPrevious = (spacing + pawnWidth) * (k - 1)
+        
+        -- local x = pos.x - (boardWidth / 2) + (pawnWidth / 2) + offsetFromPrevious
+        -- local z = pos.z + (forward.z * -9)
+        
+        local x = pos.x + (forward.x * -9)
+        local z = pos.z - (boardWidth / 2) + (pawnWidth / 2) + offsetFromPrevious
+        
+        -- local offsetFromPrevious = (pawn.getBoundsNormalized().size.z / 2 + spacing * k - 1)
+        --
+        -- local x = pos.x + (forward.x * -9)
+        -- local z = pos.z + offsetFromPrevious - (homeBoard.getBounds().size.z / 2)
+        --
+        pawn.setPositionSmooth({x, y, z}, false, false)
+      end
+      
+      if math.abs(forward.z) > 0.9 then
+        local pawnWidth = pawn.getBoundsNormalized().size.z
+        local boardWidth = homeBoard.getBoundsNormalized().size.x
+        local offsetFromPrevious = (spacing + pawnWidth) * (k - 1)
+        --local offsetFromPrevious = (pawn.getBoundsNormalized().size.x / 2 + spacing * k - 1)
+        
+        --local x = pos.x + offsetFromPrevious - (homeBoard.getBounds().size.x / 2)
+        local x = pos.x - (boardWidth / 2) + (pawnWidth / 2) + offsetFromPrevious
+        local z = pos.z + (forward.z * -9)
+        
+        pawn.setPositionSmooth({x, y, z}, false, false)
+      end
+    end
+  end
 end
