@@ -56,13 +56,14 @@ function returnHome2()
   local homes = {
     f5fc8a = {-- Grey Hands
         pawnIds = {'09abdb', 'c82bc9', '88ea75', '4e7f70', 'd85c4c', '6c9926'},
-        rotation = Vector.new(0, 90, 0),
+        offset = vector(0, 0, 0),
+        rotation = vector(0, 90, 0),
         spacing = 0
       },
     a414f8 = {-- Harpers
         pawnIds = {'c43e3e', 'f27fef', '2bb311', '097e57', 'e3db7f', '8ac1f3'},
-        rotation = Vector.new(0, 90, 0),
-        spacing = 1.5
+        rotation = vector(0, 90, 0),
+        spacing = 1
       }
   }
   
@@ -72,9 +73,11 @@ function returnHome2()
     for k, pawnId in pairs(homeInfo.pawnIds) do
       local pawn = getObjectFromGUID(pawnId)
       
+      -- Orient the pawn
       local rotation = homeBoard.getRotation() + homeInfo.rotation
       pawn.setRotationSmooth(rotation, false, false)
       
+      -- Move the pawn
       local forward = homeBoard.getTransformForward()
       local pos = homeBoard.getPosition()
       local spacing = homeInfo.spacing or defaults.spacing
@@ -82,32 +85,19 @@ function returnHome2()
       -- Raise the pawns up just a little
       local y = pos.y + (homeInfo.elevation or defaults.elevation)
       
+      local boardWidth = homeBoard.getBoundsNormalized().size.x
+      local pawnWidth = math.min(pawn.getBoundsNormalized().size.x, pawn.getBoundsNormalized().size.z)
+      
+      local offsetFromPrevious = (spacing + pawnWidth) * (k - 1)
+      
       if math.abs(forward.x) > 0.9 then
-        local pawnWidth = pawn.getBoundsNormalized().size.z
-        local boardWidth = homeBoard.getBoundsNormalized().size.x
-        local offsetFromPrevious = (spacing + pawnWidth) * (k - 1)
-        
-        -- local x = pos.x - (boardWidth / 2) + (pawnWidth / 2) + offsetFromPrevious
-        -- local z = pos.z + (forward.z * -9)
-        
         local x = pos.x + (forward.x * -9)
         local z = pos.z - (boardWidth / 2) + (pawnWidth / 2) + offsetFromPrevious
         
-        -- local offsetFromPrevious = (pawn.getBoundsNormalized().size.z / 2 + spacing * k - 1)
-        --
-        -- local x = pos.x + (forward.x * -9)
-        -- local z = pos.z + offsetFromPrevious - (homeBoard.getBounds().size.z / 2)
-        --
         pawn.setPositionSmooth({x, y, z}, false, false)
       end
       
       if math.abs(forward.z) > 0.9 then
-        local pawnWidth = pawn.getBoundsNormalized().size.z
-        local boardWidth = homeBoard.getBoundsNormalized().size.x
-        local offsetFromPrevious = (spacing + pawnWidth) * (k - 1)
-        --local offsetFromPrevious = (pawn.getBoundsNormalized().size.x / 2 + spacing * k - 1)
-        
-        --local x = pos.x + offsetFromPrevious - (homeBoard.getBounds().size.x / 2)
         local x = pos.x - (boardWidth / 2) + (pawnWidth / 2) + offsetFromPrevious
         local z = pos.z + (forward.z * -9)
         
