@@ -1,0 +1,28 @@
+--
+
+FillUtil = {}
+
+function FillUtil.fill(slots, deckId)
+  local deck = getObjectFromGUID(deckId)
+  print(deck)
+  
+  for k, slot in pairs(slots) do
+    local cardInSlot = getUnlockedIn(slot.sensorId)
+    if # cardInSlot == 0 then
+      -- Add a new card to this slot
+      deck.takeObject(slot)
+    end
+  end
+end
+
+function FillUtil.clear(slots, discardLocation, flip)
+  for k, slot in pairs(slots) do
+    local cardInSlot = getUnlockedIn(slot.sensorId)
+    for k, card in pairs(cardInSlot) do
+      if flip then
+        card.flip()
+      end
+      card.setPositionSmooth(discardLocation, false, false)
+    end
+  end
+end

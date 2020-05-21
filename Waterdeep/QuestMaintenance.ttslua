@@ -1,0 +1,66 @@
+--
+
+resetQuestsButton = {
+    label='Reset\nQuests',
+    click_function='resetQuests',
+    position={1.26,0.3,0.422},
+    width=800,
+    height=600,
+    font_size=240,
+    scale={0.06, 0.06, 0.06},
+    rotation={0, 90, 0}
+}
+
+refillQuestsButton = {
+    label='Refill Quests',
+    click_function='refillQuests',
+    position={0.98,0.3,0},
+    width=1600,
+    height=400,
+    font_size=240,
+    scale={0.06, 0.06, 0.06},
+    rotation={0, 90, 0}
+}
+
+local questDeckId = '143f20'
+local slots = {
+  {
+    sensorId = 'b194f0',
+    position = {32.71, 1.71, 3.68},
+    rotation = {0,270,0}
+  },
+  {
+    sensorId = 'eec865',
+    position = {32.71, 1.71, -4.65},
+    rotation = {0,270,0}
+  },
+  {
+    sensorId = '3d06fa',
+    position = {26.78, 1.72, 3.68},
+    rotation = {0,270,0}
+  },
+  {
+    sensorId = 'd7f961',
+    position = {26.77, 1.72, -4.67},
+    rotation = {0,270,0}
+  }
+}
+local questDiscard = {29.77, 1.71, -14.70}
+
+function initQuestManagement(board)
+  board.createButton(resetQuestsButton)
+  board.createButton(refillQuestsButton)
+end
+
+function resetQuests()
+  clearQuests()
+  Wait.time(refillQuests, 0.6)
+end
+
+function clearQuests()
+  FillUtil.clear(slots, questDiscard)
+end
+
+function refillQuests()
+  FillUtil.fill(slots, questDeckId)
+end
