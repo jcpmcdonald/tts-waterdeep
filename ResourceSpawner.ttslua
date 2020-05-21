@@ -1,0 +1,76 @@
+--
+
+Spawner = {}
+
+Spawner.boards = {}
+
+Spawner.defaultPlacementPattern = { vector(0, 0, 0) }
+
+Spawner.thingInfos = {}
+
+function Spawner.SetUpSpawnables(spawnables, boards, placementPattern)
+  for i, spawnable in pairs(spawnables) do
+    Spawner.CreateSpawnResourceButtonFor(getObjectFromGUID(i))
+  end
+  
+  Spawner.thingInfos = spawnables
+  Spawner.defaultPlacementPattern = placementPattern or { vector(0, 0, 0) }
+  Spawner.boards = boards
+end
+
+function Spawner.CreateSpawnResourceButtonFor(obj)
+  obj.createButton({
+            click_function="SpawnResource",
+            function_owner=self,
+            width=1000,
+            height=1000,
+            position={0,-0.9,0},
+            rotation={0,0,0},
+        })
+end
+
+function SpawnResource(resourceObj, playerColor, alt_click) Spawner.SpawnResource(resourceObj, playerColor, alt_click) end
+function Spawner.SpawnResource(resourceObj, playerColor, alt_click)
+  -- Don't accept right-clicks
+  if alt_click then return end
+  
+  local playerBoard = getObjectFromGUID(Spawner.boards[playerColor].boardId)
+  local thingInfo = Spawner.thingInfos[resourceObj.guid]
+  
+  -- Don't pile token on top of eachother by using a placement pattern
+  -- Use the next placement offset using the pattern, and advance the index
+  local placementPattern = thingInfo.placementPattern or Spawner.defaultPlacementPattern
+  local placementOffset = placementPattern[thingInfo.placementIndex or 1]
+  thingInfo.placementIndex = (thingInfo.placementIndex or 1) + 1
+  if thingInfo.placementIndex > # placementPattern then thingInfo.placementIndex = 1 end
+  
+  
+  local pos = playerBoard.getPosition() + thingInfo.offset + placementOffset + playerBoard.getTransformUp() * 3
+  getUnlockedInArea(pos, {1, 1, 1})
+  
+  -- Clone!
+  local cloned = resourceObj.clone({
+    position = pos,
+    snap_to_grid = false,
+    rotation = (thingInfo.rotation or {0, 0, 0})
+  })
+  
+  -- Set some properties
+  cloned.setName(thingInfo.name)
+  cloned.setScale(thingInfo.scale)
+  cloned.setLock(false)
+end
+
+function Spawner.Pattern3by3(xUnit, zUnit)
+  return {
+    vector(0, 0, 0),
+    vector(xUnit, 0, 0),
+    vector(xUnit * 2, 0, 0),
+    vector(0, 0, zUnit),
+    vector(xUnit, 0, zUnit),
+    vector(xUnit * 2, 0, zUnit),
+    vector(0, 0, zUnit * 2),
+    vector(xUnit, 0, zUnit * 2),
+    vector(xUnit * 2, 0, zUnit * 2),
+  }
+end

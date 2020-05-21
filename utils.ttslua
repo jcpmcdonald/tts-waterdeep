@@ -1,46 +1,5 @@
 --
 
-
-function getMinBounds(obj)
-  local center = obj.getBoundsNormalized().center
-  local size = obj.getBoundsNormalized().size
-  return {
-    x= center.x - (size.x / 2),
-    y= center.y - (size.y / 2),
-    z= center.z - (size.z / 2)
-  }
-end
-
-function getMaxBounds(obj)
-  local center = obj.getBoundsNormalized().center
-  local size = obj.getBoundsNormalized().size
-  return {
-    x= center.x + (size.x / 2),
-    y= center.y + (size.y / 2),
-    z= center.z + (size.z / 2)
-  }
-end
-
-function getMinBounds2(obj)
-  local center = obj.getBoundsNormalized().center
-  local size = obj.getBoundsNormalized().size
-  return {
-    x= math.min(center.x + (size.x / 2), center.x - (size.x / 2)),
-    y= math.min(center.y + (size.y / 2), center.y - (size.y / 2)),
-    z= math.min(center.z + (size.z / 2), center.z - (size.z / 2))
-  }
-end
-
-function getMaxBounds2(obj)
-  local center = obj.getBoundsNormalized().center
-  local size = obj.getBoundsNormalized().size
-  return {
-    x= math.max(center.x + (size.x / 2), center.x - (size.x / 2)),
-    y= math.max(center.y + (size.y / 2), center.y - (size.y / 2)),
-    z= math.max(center.z + (size.z / 2), center.z - (size.z / 2))
-  }
-end
-
 -- Gets all unlocked objects in the given zone
 function getUnlockedIn(zone)
   local all = nil
@@ -62,30 +21,55 @@ function getUnlockedIn(zone)
   return unlocked
 end
 
--- Gets all unlocked objects in the given objet's area
-function getUnlockedInArea(targetId)
-  local target = getObjectFromGUID(targetId)
+function printVector(vect)
+  print("{x = " .. round(vect.x) .. ", y = " .. round(vect.y) .. ", z = " .. round(vect.z) .. "}")
+end
+
+function round(num, decimalPlaces)
+  decimalPlaces = decimalPlaces or 2
+  local a = math.pow(10, decimalPlaces)
+  return math.floor((num * a) + 0.5) / a
+end
+
+function getAllSelected()
   local all = getAllObjects()
-  
-  local unlockedInArea = {}
-  
-  local targetMin = getMinBounds(target)
-  local targetMax = getMaxBounds(target)
-  
-  -- Loop through all objects, and only add the unlocked ones that are inside the bounds of the given object to the return value
-  for k, object in pairs(all) do
-    if not object.getLock() then
-      local topLeft = getMinBounds(object)
-      local bottomRight = getMaxBounds(object)
-      if topLeft.x < targetMin.x
-          and topLeft.z < targetMin.z
-          and bottomRight.x > targetMax.x
-          and bottomRight.z > targetMax.z
-          then
-        table.insert(unlockedInArea, object)
-      end
+  local selectedObjects = {}
+  for k, obj in pairs(all) do
+    if # obj.getSelectingPlayers() >= 1 then
+      table.insert(selectedObjects, obj)
     end
   end
-  
-  return unlockedInArea
+  return selectedObjects
 end
+
+-- Prints the guids of the selected items to the console
+-- Use "lua printGuids" in the console
+function printGuids()
+  local selectedObjects = getAllSelected()
+  local str = ""
+  local first = true
+  for k, obj in pairs(selectedObjects) do
+    if first then
+      first = false
+      str = "{"
+    else
+      str = str .. ', '
+    end
+    str = str .. "'" .. obj.guid .. "'"
+  end
+  str = str .. "}"
+  
+  Notes.setNotes(str)
+  -- print(selectedObjects)
+end
+
+--
+-- function align()
+--   local selectedObjects = getAllSelected()
+--
+--
+--
+--   for k, obj in pairs(selectedObjects) do
+--
+--   end
+-- end

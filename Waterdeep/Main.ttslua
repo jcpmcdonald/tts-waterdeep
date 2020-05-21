@@ -1,7 +1,10 @@
 --
-#include ../utils
-#include ReturnHome
-#include QuestManagement
+#include ../Utils
+#include ../FillUtil
+#include ../ReturnHome
+#include ../ResourceSpawner
+#include QuestMaintenance
+#include BuildingMaintenance
 
 -- homeBoxIds = {'bf3a99', '093165'}
 -- homeBoardIds = {'97c397', 'f5fc8a'}
@@ -19,43 +22,74 @@ newRoundButton = {
     rotation={0, 90, 0}
 }
 
+-- local exampleBoardId = 'f5fc8a'
+
+local homes = {
+  ["Teal"] = {
+    name = "Grey Hands",
+    boardId = 'f5fc8a',
+    pawnIds = {'09abdb', 'c82bc9', '88ea75', '4e7f70', 'd85c4c', '6c9926'},
+  },
+  Green = {
+    name = "Harpers",
+    boardId = 'a414f8',
+    pawnIds = {'c43e3e', 'f27fef', '2bb311', '097e57', 'e3db7f', '8ac1f3'},
+  },
+  White = {
+    name = "City Guards",
+    boardId = '97c397',
+    pawnIds = {'f2eafa', 'e80f14', 'b11405', '896101', '391416', '1839cb'}
+  }
+}
+
+-- Information about the kinds of things that are spawned, keyed by the thing's guid
+local spawnables = {
+  ['695801'] = {
+    name = 'Rogue',             -- name to assign the cloned thing
+    offset = vector(1, 0, 3.4),   -- offset of the first one in the placement pattern
+    scale = vector(1, 1, 1)
+  },
+  ['79fc35'] = {
+    name = 'Fighter',
+    offset = vector(-4, 0, 3.4),
+    scale = vector(1, 1, 1),
+  },
+  ['4a9cda'] = {
+    name = 'Cleric',
+    offset = vector(1, 0, 0),
+    scale = vector(1, 1, 1),
+  },
+  ['c57614'] = {
+    name = 'Wizard',
+    offset = vector(-4, 0, 0),
+    scale = vector(1, 1, 1)
+  },
+  ['94320b'] = {
+    name = 'Gold',
+    offset = vector(-3.2, 0, -1.5),
+    scale = vector(1.2, 1.2, 1.2),
+    placementPattern = { vector(0, 0, 0) }
+  },
+  ['2b63fb'] = {
+    name = 'x 5 Gold',
+    offset = vector(3.1, 0, -1.5),
+    scale = vector(1.2, 1.2, 1.2),
+    placementPattern = { vector(0, 0, 0) },
+    rotation = {0, 180, 0}
+  }
+}
+
 function onLoad()
-  -- For each "home box", set this as home for every unlocked thing in it
-  -- for k, homeId in pairs(homeBoxIds) do
-  --   --local homeBox = getObjectFromGUID(homeId)
-  --   for k, agent in pairs(getUnlockedIn(homeId)) do
-  --     setHomeAndRotation(agent, homeId, agent.getRotation())
-  --   end
-  -- end
-  
-  -- for k, homeBoardId in pairs(homeBoardIds) do
-  --   print(# getUnlockedInArea(homeBoardId))
-  --   -- for k, agent in pairs(getUnlockedInArea(homeBoardId)) do
-  --   --   print(agent.getName())
-  --   --   -- setHomeAndRotation(agent, homeId, agent.getRotation())
-  --   -- end
-  -- end
-  
   local board = getObjectFromGUID(boardId)
   board.createButton(newRoundButton)
   
-  initReturnHome()
+  initReturnHome(nil, vector(0, 3, -9))
   initQuestManagement(board)
+  Buildings.Init(board)
   
-  local obj = getObjectFromGUID('09abdb')
-  local tl = getMinBounds(obj)
-  local br = getMaxBounds(obj)
-  print(tl.x)
-  print(br.x)
+  Spawner.SetUpSpawnables(spawnables, homes, Spawner.Pattern3by3(1.5, 1))
 end
-
-function setHomeAndRotation(pawn, homeId, rotation)
-  
-  pawn.script_state = JSON.encode({home=homeId, rotation=rotation})
-end
-
-
 
 function endOfRound()
-  returnHome2()
+  returnHome(homes)
 end
