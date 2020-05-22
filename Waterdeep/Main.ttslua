@@ -84,16 +84,26 @@ local spawnables = {
   }
 }
 
-function onLoad()
+function onLoad(save_state)
+  local savedData = {}
+  if save_state then
+    savedData = JSON.decode(save_state)
+  end
+  
   local board = getObjectFromGUID(boardId)
   board.createButton(newRoundButton)
   
   ReturnHome.init(nil, vector(0, 2, -9))
   initQuestManagement(board)
   Buildings.Init(board)
-  Amb.Init(homes)
+  Amb.Init(savedData and savedData.Amb or nil, homes)
   
   Spawner.SetUpSpawnables(spawnables, homes, Spawner.Pattern3by5(1.5, 1))
+end
+
+function onSave()
+  local data = { Amb = Amb.save() }
+  return JSON.encode(data)
 end
 
 function endOfRound()

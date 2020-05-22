@@ -13,7 +13,9 @@ Amb.ambassadorId = '8a5af4'
 Amb.tints = {}
 Amb.homes = {}
 
-function Amb.Init(homes)
+Amb.extraWorkers = {}
+
+function Amb.Init(saved_data, homes)
   Amb.homes = homes
   
   -- Remember the color of the player pawns
@@ -31,6 +33,20 @@ function Amb.Init(homes)
             position={0,-0.9,0},
             rotation={0,0,0},
         })
+  
+  -- Re-load our extra workers
+  if saved_data then
+    for color, workerIds in pairs(saved_data) do
+      for i, workerId in pairs(workerIds) do
+        Amb.assignPawnToHomeBoard(workerId, color)
+      end
+    end
+  end
+end
+
+function Amb.save()
+  -- Remember our extra workers
+  return Amb.extraWorkers
 end
 
 function SpawnExtraPawn(obj, playerColor, alt_click) Amb.SpawnExtraPawn(obj, playerColor, alt_click) end
@@ -54,13 +70,19 @@ function Amb.SpawnExtraPawn(obj, playerColor, alt_click)
   end
   
   local hasGuid = function() return dupe.guid != '' and dupe.guid != obj.guid end
-  Wait.condition(|| Amb.assignPawnToHomeBoard(dupe, playerColor), hasGuid)
+  Wait.condition(|| Amb.assignPawnToHomeBoard(dupe.guid, playerColor), hasGuid)
   
   broadcastToAll(playerColor .. " has taken the an extra pawn")
 end
 
-function Amb.assignPawnToHomeBoard(obj, playerColor)
-  table.insert(Amb.homes[playerColor].pawnIds, obj.guid)
+function Amb.assignPawnToHomeBoard(objId, playerColor)
+  table.insert(Amb.homes[playerColor].pawnIds, objId)
+  
+  if not Amb.extraWorkers[playerColor] then
+    Amb.extraWorkers[playerColor] = {objId}
+  else
+    table.insert(Amb.extraWorkers[playerColor], objId)
+  end
   
   if # getUnlockedInSet(Amb.homes[playerColor].pawnIds) > 6 then
     Amb.homes[playerColor].spaceBetweenPawns = 0.2
