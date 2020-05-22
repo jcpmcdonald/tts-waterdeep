@@ -34,18 +34,27 @@ function isUnlockedNearby(position, dist)
   return false
 end
 
-function isUnlockedNearbySmart(position, scale)
-  zoneSpawn = {
-    position = position,
-    scale = scale,
+local sensorZone = {}
+function initSensorZone()
+  sensorZoneDetails = {
+    position = {0, 0, 0},
+    scale = {2, 2, 2},
     type = 'ScriptingTrigger',
     rotation = {0, 0, 0}
   }
-  zone = spawnObject(zoneSpawn)
+  sensorZone = spawnObject(sensorZoneDetails)
+end
+
+function isUnlockedNearbySmart(position, scale, rotation)
   
-  hasGuid = function() return zone.guid != '' end
-  Wait.condition(|| print(# zone.getObjects()), hasGuid)
-  print("Immediate: " .. # zone.getObjects())
+  sensorZone.setScale({scale.x, 20, scale.z})
+  sensorZone.setPosition({position.x, 2, position.z})
+  sensorZone.setRotation(rotation)
+  
+  if # getUnlockedIn(sensorZone) > 0 then
+    print("Something's here!")
+  end
+  return # getUnlockedIn(sensorZone) > 0
 end
 
 function getUnlockedInSet(set)

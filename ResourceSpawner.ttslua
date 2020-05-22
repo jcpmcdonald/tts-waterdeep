@@ -16,6 +16,8 @@ function Spawner.SetUpSpawnables(spawnables, boards, placementPattern)
   Spawner.thingInfos = spawnables
   Spawner.defaultPlacementPattern = placementPattern or { vector(0, 0, 0) }
   Spawner.boards = boards
+  
+  initSensorZone()
 end
 
 function Spawner.CreateSpawnResourceButtonFor(obj)
@@ -41,27 +43,32 @@ function Spawner.SpawnResource(resourceObj, playerColor, alt_click)
   -- Use the next placement offset using the pattern, and advance the index
   local placementPattern = thingInfo.placementPattern or Spawner.defaultPlacementPattern
   
-  local placementOffset = getFirstUnoccupiedPlacementOffset(playerBoard, placementPattern, thingInfo.offset)
+  local rotation = playerBoard.getRotation() + (thingInfo.rotation or vector(0, 0, 0))
+  local placementOffset = getFirstUnoccupiedPlacementOffset(playerBoard, placementPattern, thingInfo.offset, thingInfo.scale, rotation)
   
+  spawnThing(resourceObj, playerBoard, placementOffset, thingInfo, rotation)
+end
+
+function spawnThing(resourceObj, playerBoard, placementOffset, thingInfo, rotation)
   -- Clone!
   local cloned = resourceObj.clone({
     position = playerBoard.positionToWorld(placementOffset + thingInfo.offset) + playerBoard.getTransformUp() * 3,
     snap_to_grid = false,
-    rotation = playerBoard.getRotation() + (thingInfo.rotation or vector(0, 0, 0))
+    rotation = rotation
   })
-  
   -- Set some properties
   cloned.setName(thingInfo.name)
   cloned.setScale(thingInfo.scale)
   cloned.setLock(false)
 end
 
-function getFirstUnoccupiedPlacementOffset(board, placementPattern, initialOffset)
+function getFirstUnoccupiedPlacementOffset(board, placementPattern, initialOffset, scale, rotation)
   
   for i=1,# placementPattern do
     local placementOffset = placementPattern[i]
     local pos = initialOffset + placementOffset
     if not isUnlockedNearby(board.positionToWorld(pos)) then
+    --if not isUnlockedNearbySmart(board.positionToWorld(pos), scale, rotation) then
       return placementOffset
     end
   end

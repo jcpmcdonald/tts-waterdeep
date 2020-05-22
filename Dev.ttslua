@@ -43,6 +43,10 @@ function printGuids()
   -- print(selectedObjects)
 end
 
+function pprint(data)
+  print(JSON.encode_pretty(data))
+end
+
 --
 -- function align()
 --   local selectedObjects = getAllSelected()
