@@ -48,38 +48,39 @@ local homes = {
 local spawnables = {
   ['695801'] = {
     name = 'Rogue',
-    offset = vector(1, 0, 5.5),
+    offset = vector(-1, 0, -5.2),
     scale = vector(1, 1, 1),
-    placementPattern = Spawner.Pattern3by5(1.5, -1)
+    placementPattern = Spawner.Pattern3by5(-1.5, 1)
   },
   ['79fc35'] = {
     name = 'Fighter',
-    offset = vector(-4, 0, 5.5),
+    offset = vector(4, 0, -5.2),
     scale = vector(1, 1, 1),
-    placementPattern = Spawner.Pattern3by5(1.5, -1)
+    placementPattern = Spawner.Pattern3by5(-1.5, 1)
   },
   ['4a9cda'] = {
     name = 'Cleric',
-    offset = vector(1, 0, -0.5),
+    offset = vector(-1, 0, 0.8),
     scale = vector(1, 1, 1),
+    placementPattern = Spawner.Pattern3by5(-1.5, -1)
   },
   ['c57614'] = {
     name = 'Wizard',
-    offset = vector(-4, 0, -0.5),
-    scale = vector(1, 1, 1)
+    offset = vector(4, 0, 0.8),
+    scale = vector(1, 1, 1),
+    placementPattern = Spawner.Pattern3by5(-1.5, -1)
   },
   ['94320b'] = {
     name = 'Gold',
-    offset = vector(-3.2, 0, -1.8),
+    offset = vector(3.2, 0, 1.8),
     scale = vector(1.2, 1.2, 1.2),
     placementPattern = { vector(0, 0, 0) }
   },
   ['2b63fb'] = {
     name = 'x 5 Gold',
-    offset = vector(3.1, 0, -1.8),
+    offset = vector(-3.1, 0, 1.8),
     scale = vector(1.2, 1.2, 1.2),
-    placementPattern = { vector(0, 0, 0) },
-    rotation = {0, 180, 0}
+    placementPattern = { vector(0, 0, 0) }
   }
 }
 

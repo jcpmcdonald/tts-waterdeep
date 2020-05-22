@@ -47,7 +47,7 @@ function Spawner.SpawnResource(resourceObj, playerColor, alt_click)
   local cloned = resourceObj.clone({
     position = playerBoard.positionToWorld(placementOffset + thingInfo.offset) + playerBoard.getTransformUp() * 3,
     snap_to_grid = false,
-    rotation = (thingInfo.rotation or {0, 0, 0})
+    rotation = playerBoard.getRotation() + (thingInfo.rotation or vector(0, 0, 0))
   })
   
   -- Set some properties
