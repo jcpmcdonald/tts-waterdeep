@@ -1,0 +1,68 @@
+--
+
+-- Ambassador and Lieutenant script
+-- CLick on one of the two to generate a new Agent that will get added to your agent pool
+
+local Amb = {}
+
+-- If true, new pawns will take on the faction's name. If false, new pawns will be called "Extra".
+Amb.useFactionNameForExtraPawn = false
+
+Amb.ambassadorId = '8a5af4'
+
+Amb.tints = {}
+Amb.homes = {}
+
+function Amb.Init(homes)
+  Amb.homes = homes
+  
+  -- Remember the color of the player pawns
+  for i, home in pairs(homes) do
+    Amb.tints[i] = getObjectFromGUID(home.pawnIds[1]).getColorTint()
+  end
+  
+  local ambassador = getObjectFromGUID(Amb.ambassadorId)
+  
+  ambassador.createButton({
+            click_function="SpawnExtraPawn",
+            function_owner=self,
+            width=1000,
+            height=1000,
+            position={0,-0.9,0},
+            rotation={0,0,0},
+        })
+end
+
+function SpawnExtraPawn(obj, playerColor, alt_click) Amb.SpawnExtraPawn(obj, playerColor, alt_click) end
+function Amb.SpawnExtraPawn(obj, playerColor, alt_click)
+  -- Don't accept right-clicks
+  if alt_click then return end
+  
+  local playerBoardLocation = getObjectFromGUID(Amb.homes[playerColor].boardId).getPosition()
+  
+  local dupe = obj.clone({
+    position     = playerBoardLocation,
+    snap_to_grid = false
+  })
+  dupe.setColorTint(Amb.tints[playerColor])
+  dupe.setLock(false)
+  
+  if Amb.useFactionNameForExtraPawn then
+    dupe.setName(Amb.homes[playerColor].name)
+  else
+    dupe.setName("Extra")
+  end
+  
+  local hasGuid = function() return dupe.guid != '' and dupe.guid != obj.guid end
+  Wait.condition(|| Amb.assignPawnToHomeBoard(dupe, playerColor), hasGuid)
+  
+  broadcastToAll(playerColor .. " has taken the an extra pawn")
+end
+
+function Amb.assignPawnToHomeBoard(obj, playerColor)
+  table.insert(Amb.homes[playerColor].pawnIds, obj.guid)
+  
+  if # getUnlockedInSet(Amb.homes[playerColor].pawnIds) > 6 then
+    Amb.homes[playerColor].spaceBetweenPawns = 0.2
+  end
+end

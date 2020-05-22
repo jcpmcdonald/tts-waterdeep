@@ -40,17 +40,13 @@ function Spawner.SpawnResource(resourceObj, playerColor, alt_click)
   -- Don't pile token on top of eachother by using a placement pattern
   -- Use the next placement offset using the pattern, and advance the index
   local placementPattern = thingInfo.placementPattern or Spawner.defaultPlacementPattern
-  local placementOffset = placementPattern[thingInfo.placementIndex or 1]
-  thingInfo.placementIndex = (thingInfo.placementIndex or 1) + 1
-  if thingInfo.placementIndex > # placementPattern then thingInfo.placementIndex = 1 end
   
-  
-  local pos = playerBoard.getPosition() + thingInfo.offset + placementOffset + playerBoard.getTransformUp() * 3
-  getUnlockedInArea(pos, {1, 1, 1})
+  local placementOffset = getFirstUnoccupiedPlacementOffset(placementPattern, playerBoard.getPosition() + thingInfo.offset)
   
   -- Clone!
   local cloned = resourceObj.clone({
-    position = pos,
+    -- THIS IS CORRECT to use Position to World
+    position = playerBoard.positionToWorld(placementOffset + thingInfo.offset) + playerBoard.getTransformUp() * 3,
     snap_to_grid = false,
     rotation = (thingInfo.rotation or {0, 0, 0})
   })
@@ -59,6 +55,21 @@ function Spawner.SpawnResource(resourceObj, playerColor, alt_click)
   cloned.setName(thingInfo.name)
   cloned.setScale(thingInfo.scale)
   cloned.setLock(false)
+end
+
+function getFirstUnoccupiedPlacementOffset(placementPattern, initialOffset)
+  
+  -- This does not take into account positionToWorld and will fail
+  
+  for i=1,# placementPattern do
+    local placementOffset = placementPattern[i]
+    local pos = initialOffset + placementOffset
+    if not isUnlockedNearby(pos) then
+      return placementOffset
+    end
+  end
+  
+  return placementPattern[1] + initialOffset
 end
 
 function Spawner.Pattern3by3(xUnit, zUnit)
@@ -72,5 +83,26 @@ function Spawner.Pattern3by3(xUnit, zUnit)
     vector(0, 0, zUnit * 2),
     vector(xUnit, 0, zUnit * 2),
     vector(xUnit * 2, 0, zUnit * 2),
+  }
+end
+
+
+function Spawner.Pattern3by5(xUnit, zUnit)
+  return {
+    vector(0, 0, 0),
+    vector(xUnit, 0, 0),
+    vector(xUnit * 2, 0, 0),
+    vector(0, 0, zUnit),
+    vector(xUnit, 0, zUnit),
+    vector(xUnit * 2, 0, zUnit),
+    vector(0, 0, zUnit * 2),
+    vector(xUnit, 0, zUnit * 2),
+    vector(xUnit * 2, 0, zUnit * 2),
+    vector(0, 0, zUnit * 3),
+    vector(xUnit, 0, zUnit * 3),
+    vector(xUnit * 2, 0, zUnit * 3),
+    vector(0, 0, zUnit * 4),
+    vector(xUnit, 0, zUnit * 4),
+    vector(xUnit * 2, 0, zUnit * 4),
   }
 end

@@ -1,10 +1,12 @@
 --
+#include ../Dev
 #include ../Utils
 #include ../FillUtil
 #include ../ReturnHome
 #include ../ResourceSpawner
 #include QuestMaintenance
 #include BuildingMaintenance
+#include Ambassador
 
 -- homeBoxIds = {'bf3a99', '093165'}
 -- homeBoardIds = {'97c397', 'f5fc8a'}
@@ -26,17 +28,17 @@ newRoundButton = {
 
 local homes = {
   ["Teal"] = {
-    name = "Grey Hands",
+    name = "Grey Hand",
     boardId = 'f5fc8a',
     pawnIds = {'09abdb', 'c82bc9', '88ea75', '4e7f70', 'd85c4c', '6c9926'},
   },
   Green = {
-    name = "Harpers",
+    name = "Harper",
     boardId = 'a414f8',
     pawnIds = {'c43e3e', 'f27fef', '2bb311', '097e57', 'e3db7f', '8ac1f3'},
   },
   White = {
-    name = "City Guards",
+    name = "City Guard",
     boardId = '97c397',
     pawnIds = {'f2eafa', 'e80f14', 'b11405', '896101', '391416', '1839cb'}
   }
@@ -45,34 +47,36 @@ local homes = {
 -- Information about the kinds of things that are spawned, keyed by the thing's guid
 local spawnables = {
   ['695801'] = {
-    name = 'Rogue',             -- name to assign the cloned thing
-    offset = vector(1, 0, 3.4),   -- offset of the first one in the placement pattern
-    scale = vector(1, 1, 1)
+    name = 'Rogue',
+    offset = vector(1, 0, 5.5),
+    scale = vector(1, 1, 1),
+    placementPattern = Spawner.Pattern3by5(1.5, -1)
   },
   ['79fc35'] = {
     name = 'Fighter',
-    offset = vector(-4, 0, 3.4),
+    offset = vector(-4, 0, 5.5),
     scale = vector(1, 1, 1),
+    placementPattern = Spawner.Pattern3by5(1.5, -1)
   },
   ['4a9cda'] = {
     name = 'Cleric',
-    offset = vector(1, 0, 0),
+    offset = vector(1, 0, -0.5),
     scale = vector(1, 1, 1),
   },
   ['c57614'] = {
     name = 'Wizard',
-    offset = vector(-4, 0, 0),
+    offset = vector(-4, 0, -0.5),
     scale = vector(1, 1, 1)
   },
   ['94320b'] = {
     name = 'Gold',
-    offset = vector(-3.2, 0, -1.5),
+    offset = vector(-3.2, 0, -1.8),
     scale = vector(1.2, 1.2, 1.2),
     placementPattern = { vector(0, 0, 0) }
   },
   ['2b63fb'] = {
     name = 'x 5 Gold',
-    offset = vector(3.1, 0, -1.5),
+    offset = vector(3.1, 0, -1.8),
     scale = vector(1.2, 1.2, 1.2),
     placementPattern = { vector(0, 0, 0) },
     rotation = {0, 180, 0}
@@ -83,13 +87,14 @@ function onLoad()
   local board = getObjectFromGUID(boardId)
   board.createButton(newRoundButton)
   
-  initReturnHome(nil, vector(0, 3, -9))
+  ReturnHome.init(nil, vector(0, 2, -9))
   initQuestManagement(board)
   Buildings.Init(board)
+  Amb.Init(homes)
   
-  Spawner.SetUpSpawnables(spawnables, homes, Spawner.Pattern3by3(1.5, 1))
+  Spawner.SetUpSpawnables(spawnables, homes, Spawner.Pattern3by5(1.5, 1))
 end
 
 function endOfRound()
-  returnHome(homes)
+  ReturnHome.returnHome(homes)
 end

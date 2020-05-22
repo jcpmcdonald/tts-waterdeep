@@ -1,14 +1,15 @@
 --
 
+local ReturnHome = {}
 
-local defaults = {
+ReturnHome.defaults = {
   spaceBetweenPawns = nil,
   offset = nil
 }
 
-function initReturnHome(defaultSpaceBetweenPawns, defaultOffset)
-  defaults.spaceBetweenPawns = defaultSpaceBetweenPawns or 0.5
-  defaults.offset = defaultOffset or vector(0, 3, 0)
+function ReturnHome.init(defaultSpaceBetweenPawns, defaultOffset)
+  ReturnHome.defaults.spaceBetweenPawns = defaultSpaceBetweenPawns or 0.5
+  ReturnHome.defaults.offset = defaultOffset or vector(0, 3, 0)
 end
 
 -- #########################################
@@ -29,36 +30,28 @@ end
 -- The space between pawns and the offset from the player board are both optional, and will override any
 -- value set during initialization
 -- ##########################################
-function returnHome(homes)
+function ReturnHome.returnHome(homes)
   for i, homeInfo in pairs(homes) do
     local homeBoard = getObjectFromGUID(homeInfo.boardId)
     
     -- Get a list of the unlocked pawns
-    local unlockedPawns = {}
-    local pawnWidth = 0 -- calculate the average pawn width
-    for k, pawnId in pairs(homeInfo.pawnIds) do
-      local pawn = getObjectFromGUID(pawnId)
-      if pawn.getLock() == false then
-        table.insert(unlockedPawns, pawn)
-        pawnWidth = pawnWidth + math.min(pawn.getBoundsNormalized().size.x, pawn.getBoundsNormalized().size.z)
-      end
-    end
-    pawnWidth = pawnWidth / # unlockedPawns
+    local unlockedPawns = getUnlockedInSet(homeInfo.pawnIds)
+    local pawnWidth = ReturnHome.getAverageWidthOfPawns(unlockedPawns)
     
-    local spaceBetweenPawns = homeInfo.spaceBetweenPawns or defaults.spaceBetweenPawns
-    local pawnArrangementWidth = (# unlockedPawns * (pawnWidth + spaceBetweenPawns)) - spaceBetweenPawns
-    local offset = homeInfo.offset or defaults.offset
+    local spaceBetweenPawns = homeInfo.spaceBetweenPawns or ReturnHome.defaults.spaceBetweenPawns
+    local offset = homeInfo.offset or ReturnHome.defaults.offset
+    local pawnArrangementWidth = ReturnHome.getPawnArrangementWidth(unlockedPawns, pawnWidth, spaceBetweenPawns)
     
     -- Arrange the unlocked pawns
     for k, pawn in pairs(unlockedPawns) do
-      -- Orient the pawn
-      local pawnRotation
-      if homeInfo.pawnRotation then
+      -- Orient the pawn relative to the board
+      local pawnRotation = homeBoard.getRotation()
+      if not homeInfo.pawnRotation == nil then
         -- Use the provided rotation
-        pawnRotation = homeBoard.getRotation() + homeInfo.pawnRotation
+        pawnRotation = pawnRotation + homeInfo.pawnRotation
       elseif pawn.getBoundsNormalized().size.x > pawn.getBoundsNormalized().size.z then
         -- Rotate by 90 degrees so that non-square things are taller than wide. eg: ||| instead of ---
-        pawnRotation = homeBoard.getRotation() + vector(0, 90, 0)
+        pawnRotation = pawnRotation + vector(0, 90, 0)
       end
       pawn.setRotationSmooth(pawnRotation, false, false)
       
@@ -72,4 +65,18 @@ function returnHome(homes)
       pawn.setPositionSmooth(homeBoard.positionToWorld({x, y, z}), false, false)
     end
   end
+end
+
+function ReturnHome.getAverageWidthOfPawns(pawns)
+  local totalPawnWidth = 0
+  for k, pawn in pairs(pawns) do
+    if pawn then
+      totalPawnWidth = totalPawnWidth + math.min(pawn.getBoundsNormalized().size.x, pawn.getBoundsNormalized().size.z)
+    end
+  end
+  return totalPawnWidth / # pawns
+end
+
+function ReturnHome.getPawnArrangementWidth(pawns, pawnWidth, spaceBetween)
+  return (# pawns * (pawnWidth + spaceBetween)) - spaceBetween
 end

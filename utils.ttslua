@@ -21,55 +21,40 @@ function getUnlockedIn(zone)
   return unlocked
 end
 
-function printVector(vect)
-  print("{x = " .. round(vect.x) .. ", y = " .. round(vect.y) .. ", z = " .. round(vect.z) .. "}")
-end
-
-function round(num, decimalPlaces)
-  decimalPlaces = decimalPlaces or 2
-  local a = math.pow(10, decimalPlaces)
-  return math.floor((num * a) + 0.5) / a
-end
-
-function getAllSelected()
+function isUnlockedNearby(position, dist)
+  local posVector = Vector.new(position.x, 0, position.z)
   local all = getAllObjects()
-  local selectedObjects = {}
   for k, obj in pairs(all) do
-    if # obj.getSelectingPlayers() >= 1 then
-      table.insert(selectedObjects, obj)
+    local objPos = obj.getPosition()
+    objPos:setAt('y', 0)
+    if objPos:distance(posVector) < (dist or 0.5) then
+      return true
     end
   end
-  return selectedObjects
+  return false
 end
 
--- Prints the guids of the selected items to the console
--- Use "lua printGuids" in the console
-function printGuids()
-  local selectedObjects = getAllSelected()
-  local str = ""
-  local first = true
-  for k, obj in pairs(selectedObjects) do
-    if first then
-      first = false
-      str = "{"
-    else
-      str = str .. ', '
-    end
-    str = str .. "'" .. obj.guid .. "'"
-  end
-  str = str .. "}"
+function isUnlockedNearbySmart(position, scale)
+  zoneSpawn = {
+    position = position,
+    scale = scale,
+    type = 'ScriptingTrigger',
+    rotation = {0, 0, 0}
+  }
+  zone = spawnObject(zoneSpawn)
   
-  Notes.setNotes(str)
-  -- print(selectedObjects)
+  hasGuid = function() return zone.guid != '' end
+  Wait.condition(|| print(# zone.getObjects()), hasGuid)
+  print("Immediate: " .. # zone.getObjects())
 end
 
---
--- function align()
---   local selectedObjects = getAllSelected()
---
---
---
---   for k, obj in pairs(selectedObjects) do
---
---   end
--- end
+function getUnlockedInSet(set)
+  local unlocked = {}
+  for k, objId in pairs(set) do
+    local obj = getObjectFromGUID(objId)
+    if obj and obj.getLock() == false then
+      table.insert(unlocked, obj)
+    end
+  end
+  return unlocked
+end

@@ -1,0 +1,55 @@
+--
+
+-- Dedicated to development helpers
+function printVector(vect)
+  print("{x = " .. round(vect.x) .. ", y = " .. round(vect.y) .. ", z = " .. round(vect.z) .. "}")
+end
+
+function round(num, decimalPlaces)
+  decimalPlaces = decimalPlaces or 2
+  local a = math.pow(10, decimalPlaces)
+  return math.floor((num * a) + 0.5) / a
+end
+
+function getAllSelected()
+  local all = getAllObjects()
+  local selectedObjects = {}
+  for k, obj in pairs(all) do
+    if # obj.getSelectingPlayers() >= 1 then
+      table.insert(selectedObjects, obj)
+    end
+  end
+  return selectedObjects
+end
+
+-- Prints the guids of the selected items to the console
+-- Use "lua printGuids" in the console
+function printGuids()
+  local selectedObjects = getAllSelected()
+  local str = ""
+  local first = true
+  for k, obj in pairs(selectedObjects) do
+    if first then
+      first = false
+      str = "{"
+    else
+      str = str .. ', '
+    end
+    str = str .. "'" .. obj.guid .. "'"
+  end
+  str = str .. "}"
+  
+  Notes.setNotes(str)
+  -- print(selectedObjects)
+end
+
+--
+-- function align()
+--   local selectedObjects = getAllSelected()
+--
+--
+--
+--   for k, obj in pairs(selectedObjects) do
+--
+--   end
+-- end
