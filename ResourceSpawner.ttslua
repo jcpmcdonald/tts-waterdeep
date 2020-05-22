@@ -41,11 +41,10 @@ function Spawner.SpawnResource(resourceObj, playerColor, alt_click)
   -- Use the next placement offset using the pattern, and advance the index
   local placementPattern = thingInfo.placementPattern or Spawner.defaultPlacementPattern
   
-  local placementOffset = getFirstUnoccupiedPlacementOffset(placementPattern, playerBoard.getPosition() + thingInfo.offset)
+  local placementOffset = getFirstUnoccupiedPlacementOffset(playerBoard, placementPattern, thingInfo.offset)
   
   -- Clone!
   local cloned = resourceObj.clone({
-    -- THIS IS CORRECT to use Position to World
     position = playerBoard.positionToWorld(placementOffset + thingInfo.offset) + playerBoard.getTransformUp() * 3,
     snap_to_grid = false,
     rotation = (thingInfo.rotation or {0, 0, 0})
@@ -57,19 +56,17 @@ function Spawner.SpawnResource(resourceObj, playerColor, alt_click)
   cloned.setLock(false)
 end
 
-function getFirstUnoccupiedPlacementOffset(placementPattern, initialOffset)
-  
-  -- This does not take into account positionToWorld and will fail
+function getFirstUnoccupiedPlacementOffset(board, placementPattern, initialOffset)
   
   for i=1,# placementPattern do
     local placementOffset = placementPattern[i]
     local pos = initialOffset + placementOffset
-    if not isUnlockedNearby(pos) then
+    if not isUnlockedNearby(board.positionToWorld(pos)) then
       return placementOffset
     end
   end
   
-  return placementPattern[1] + initialOffset
+  return placementPattern[1]
 end
 
 function Spawner.Pattern3by3(xUnit, zUnit)
