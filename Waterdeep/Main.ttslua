@@ -94,7 +94,7 @@ function onLoad(save_state)
   board.createButton(newRoundButton)
   
   ReturnHome.init(nil, vector(0, 2, -9))
-  initQuestManagement(board)
+  Quests.init(board)
   Buildings.Init(board)
   Amb.Init(savedData and savedData.Amb or nil, homes)
   

@@ -1,6 +1,8 @@
 --
 
-resetQuestsButton = {
+local Quests = {}
+
+Quests.resetQuestsButton = {
     label='Reset\nQuests',
     click_function='resetQuests',
     position={1.26,0.3,0.422},
@@ -11,7 +13,7 @@ resetQuestsButton = {
     rotation={0, 90, 0}
 }
 
-refillQuestsButton = {
+Quests.refillQuestsButton = {
     label='Refill Quests',
     click_function='refillQuests',
     position={0.98,0.3,0},
@@ -22,8 +24,8 @@ refillQuestsButton = {
     rotation={0, 90, 0}
 }
 
-local questDeckId = '143f20'
-local slots = {
+Quests.questDeckId = '143f20'
+Quests.slots = {
   {
     sensorId = 'b194f0',
     position = {32.71, 1.71, 3.68},
@@ -45,22 +47,24 @@ local slots = {
     rotation = {0,270,0}
   }
 }
-local questDiscard = {29.77, 1.71, -14.70}
+Quests.questDiscard = {29.77, 1.71, -14.70}
 
-function initQuestManagement(board)
-  board.createButton(resetQuestsButton)
-  board.createButton(refillQuestsButton)
+function Quests.init(board)
+  board.createButton(Quests.resetQuestsButton)
+  board.createButton(Quests.refillQuestsButton)
 end
 
-function resetQuests()
-  clearQuests()
-  Wait.time(refillQuests, 0.6)
+function resetQuests() Quests.reset() end
+function Quests.reset()
+  Quests.clear()
+  Wait.time(Quests.refill, 0.6)
 end
 
-function clearQuests()
-  FillUtil.clear(slots, questDiscard)
+function Quests.clear()
+  FillUtil.clear(Quests.slots, Quests.questDiscard)
 end
 
-function refillQuests()
-  FillUtil.fill(slots, questDeckId)
+function refillQuests() Quests.refill() end
+function Quests.refill()
+  FillUtil.fill(Quests.slots, Quests.questDeckId)
 end
