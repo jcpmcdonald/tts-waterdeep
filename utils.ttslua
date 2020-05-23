@@ -1,7 +1,7 @@
 --
 
 -- Gets all unlocked objects in the given zone
-function getUnlockedIn(zone)
+function getUnlockedIn(zone, exceptions)
   local all = nil
   if type(zone) == "string" then
     all = getObjectFromGUID(zone).getObjects()
@@ -13,12 +13,21 @@ function getUnlockedIn(zone)
   
   -- Loop through all objects, and only add the unlocked ones to the return value
   for k, object in pairs(all) do
-    if not object.getLock() then
+    if not object.getLock() and not hasValue(exceptions or {}, object.guid) then
       table.insert(unlocked, object)
     end
   end
   
   return unlocked
+end
+
+function hasValue (tab, val)
+    for index, value in ipairs(tab) do
+        if value == val then
+            return true
+        end
+    end
+    return false
 end
 
 function isUnlockedNearby(position, dist)
@@ -36,7 +45,7 @@ end
 
 local sensorZone = {}
 function initSensorZone()
-  sensorZoneDetails = {
+  local sensorZoneDetails = {
     position = {0, 0, 0},
     scale = {2, 2, 2},
     type = 'ScriptingTrigger',
@@ -45,16 +54,31 @@ function initSensorZone()
   sensorZone = spawnObject(sensorZoneDetails)
 end
 
-function isUnlockedNearbySmart(position, scale, rotation)
-  
+-- Needs to be run inside a co-routine
+function isUnlockedNearbySmart(position, scale, rotation, exceptions)
   sensorZone.setScale({scale.x, 20, scale.z})
   sensorZone.setPosition({position.x, 2, position.z})
   sensorZone.setRotation(rotation)
+  coroutine.yield(0)
   
-  if # getUnlockedIn(sensorZone) > 0 then
-    print("Something's here!")
-  end
-  return # getUnlockedIn(sensorZone) > 0
+  return # getUnlockedIn(sensorZone, exceptions) > 0
+end
+
+-- Needs to be run inside a co-routine
+function isUnlockedNearbySmartCreateDestroy(position, scale, rotation)
+  local sensorZoneDetails = {
+    position = {position.x, 2, position.z},
+    scale = {scale.x, 20, scale.z},
+    type = 'ScriptingTrigger',
+    rotation = rotation
+  }
+  local createdSensorZone = spawnObject(sensorZoneDetails)
+  
+  coroutine.yield(0)
+  local objectCount = # getUnlockedIn(createdSensorZone)
+  destroyObject(createdSensorZone)
+  
+  return objectCount > 0
 end
 
 function getUnlockedInSet(set)
