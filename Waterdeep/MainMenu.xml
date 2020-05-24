@@ -1,0 +1,92 @@
+<!-- This can't be imported from the rest of the files, so copy/paste from Waterdeep/MainMenu.xml to Global -->
+
+<Defaults>
+  <Text
+    outline="#333333ff"
+    color="#eeeeeeff"
+    fontSize="20"/>
+</Defaults>
+<Panel
+  active="false"
+  id="setupScreen"
+  height="900"
+  width="711"
+  color="rgba(0,0,0,1)"
+  hideAnimation="FadeOut"
+  animationDuration="0.2"
+  allowDragging="true"
+  returnToOriginalPositionWhenReleased="false">
+    <Image image="Cover" />
+    <Text
+      text="Scripted by John McDonald"
+      fontSize="20"
+      offsetXY="0 190"
+      color="#333333ff"
+      outline=""
+      height="50"
+      width="500" />
+    <Button
+      onClick="dismissSetup"
+      height="40"
+      width="40"
+      color="#ffffffff"
+      text="X"
+      textColor="#000000ff"
+      fontStyle="Bold"
+      fontSize="20"
+      rectAlignment="UpperRight"
+      />
+    
+    <Panel
+      height="100"
+      width="711"
+      offsetXY="0 -120">
+      <Text
+        text="Number of Players"
+        fontSize="20"
+        height="50"
+        width="500"
+        offsetXY="0 30" />
+      <ToggleGroup height="30" width="300">
+        <HorizontalLayout>
+          <ToggleButton>2</ToggleButton>
+          <ToggleButton>3</ToggleButton>
+          <ToggleButton>4</ToggleButton>
+          <ToggleButton>5</ToggleButton>
+          <ToggleButton>6</ToggleButton>
+        </HorizontalLayout>
+      </ToggleGroup>
+    </Panel>
+    
+    <Panel
+      height="200"
+      width="711"
+      offsetXY="0 -220">
+      <Toggle
+        height="40"
+        width="250"
+        offsetXY="0 50">
+        <Text text="Skullport Expansion" />
+      </Toggle>
+      <Toggle
+        height="40"
+        width="250"
+        offsetXY="0 0">
+        <Text text="Undermountain Expansion" /></Toggle>
+      <Toggle
+        height="40"
+        width="250"
+        offsetXY="0 -50"
+        tooltip="Gives all players an extra meeple (official variant)">
+        <Text text="Long Game" />
+      </Toggle>
+      <Button
+        height="40"
+        width="150"
+        offsetXY="0 -100"
+        onClick="setupGame">
+        Start Game
+      </Button>
+    </Panel>
+    
+  </Panel>

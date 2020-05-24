@@ -13,7 +13,7 @@ Amb.ambassadorId = '8a5af4'
 Amb.tints = {}
 Amb.homes = {}
 
-Amb.extraWorkers = {}
+Amb.extraWorkers = nil
 
 function Amb.Init(saved_data, homes)
   Amb.homes = homes
@@ -77,6 +77,8 @@ end
 
 function Amb.assignPawnToHomeBoard(objId, playerColor)
   table.insert(Amb.homes[playerColor].pawnIds, objId)
+  
+  if not Amb.extraWorkers then Amb.extraWorkers = {} end
   
   if not Amb.extraWorkers[playerColor] then
     Amb.extraWorkers[playerColor] = {objId}

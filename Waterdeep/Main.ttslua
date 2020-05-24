@@ -7,6 +7,7 @@
 #include QuestMaintenance
 #include BuildingMaintenance
 #include Ambassador
+#include Rounds
 
 -- homeBoxIds = {'bf3a99', '093165'}
 -- homeBoardIds = {'97c397', 'f5fc8a'}
@@ -84,10 +85,20 @@ local spawnables = {
   }
 }
 
+showSetupScreen = true
+
 function onLoad(save_state)
+  print(save_state)
   local savedData = {}
-  if save_state then
+  if save_state ~= "" then
     savedData = JSON.decode(save_state)
+    
+    -- Overwrite the first load with the saved data
+    showSetupScreen = savedData and savedData.showSetupScreen
+  end
+  
+  if showSetupScreen then
+    self.UI.show("setupScreen")
   end
   
   local board = getObjectFromGUID(boardId)
@@ -102,8 +113,21 @@ function onLoad(save_state)
 end
 
 function onSave()
-  local data = { Amb = Amb.save() }
-  return JSON.encode(data)
+  local data = {}
+  local ambData = Amb.save()
+  if ambData then
+    data.Amb = ambData
+  end
+  
+  if showSetupScreen == false then
+    data.showSetupScreen = false
+  end
+  
+  if next(data) ~= nil then
+    return JSON.encode(data)
+  else
+    return ""
+  end
 end
 
 function endOfRound()
@@ -128,4 +152,14 @@ function endOfRound()
   
   -- Wait until buildings settle (or 2 seconds)
   Wait.condition(getMarketAndPlaceVps, marketIsFullAndAtRest, 2, getMarketAndPlaceVps)
+end
+
+function dismissSetup()
+  showSetupScreen = false
+  self.UI.hide("setupScreen")
+end
+
+function setupGame()
+  showSetupScreen = false
+  self.UI.hide("setupScreen")
 end
