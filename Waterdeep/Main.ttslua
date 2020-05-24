@@ -108,4 +108,24 @@ end
 
 function endOfRound()
   ReturnHome.returnHome(homes)
+  
+  -- Make sure the buildings are full (they should always be, but the next code relies on it)
+  Buildings.Refill()
+  
+  local marketIsFullAndAtRest = function()
+    local marketIds = Buildings.GetBuildingIdsInMarket()
+    if # marketIds != 3 then return false end
+    
+    return getObjectFromGUID(marketIds[1]).resting and
+           getObjectFromGUID(marketIds[2]).resting and
+           getObjectFromGUID(marketIds[3]).resting
+  end
+  
+  local getMarketAndPlaceVps = function()
+    local buildingMarket = Buildings.GetBuildingIdsInMarket()
+    Rounds.moveVpsToBuildings(buildingMarket)
+  end
+  
+  -- Wait until buildings settle (or 2 seconds)
+  Wait.condition(getMarketAndPlaceVps, marketIsFullAndAtRest, 2, getMarketAndPlaceVps)
 end

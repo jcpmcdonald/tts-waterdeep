@@ -14,21 +14,21 @@ Buildings.refillButton = {
 }
 function BuildingsRefill() Buildings.Refill() end -- This is here because I can't call my namespaced method from a button
 
-Buildings.buildingDeckId = '50a5ce'
+Buildings.buildingDeckId = '93674d'
 Buildings.slots = {
   {
     sensorId = 'a19970',
-    position = {-4.00, 1.76, 3.02},
+    position = {-4.00, 2, 3.02},
     rotation = {0,270,0}
   },
   {
     sensorId = '02be2a',
-    position = {-4.00, 1.76, -3.03},
+    position = {-4.00, 2, -3.03},
     rotation = {0,270,0}
   },
   {
     sensorId = 'a70b45',
-    position = {-4.00, 1.76, -9.17},
+    position = {-4.00, 2, -9.17},
     rotation = {0,270,0}
   }
 }
@@ -39,4 +39,15 @@ end
 
 function Buildings.Refill()
   FillUtil.fill(Buildings.slots, Buildings.buildingDeckId)
+end
+
+function Buildings.GetBuildingIdsInMarket()
+  local market = {}
+  for i, slot in pairs(Buildings.slots) do
+    local buildingInSlot = getUnlockedIn(slot.sensorId)
+    if # buildingInSlot == 1 then
+      table.insert(market, buildingInSlot[1].guid)
+    end
+  end
+  return market
 end

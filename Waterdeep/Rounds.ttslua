@@ -1,0 +1,33 @@
+
+
+local Rounds = {}
+
+Rounds.roundsAreaId = '6af1b3'
+Rounds.offset = vector(-1.8, 5, -1.5)
+
+-- Takes the leftmost stack of VPs and puts one on each of the provided buildings
+function Rounds.moveVpsToBuildings(buildingIds)
+  local roundsArea = getObjectFromGUID(Rounds.roundsAreaId)
+  local allInArea = getUnlockedIn(roundsArea)
+  
+  if # allInArea == 0 then
+    print("No more VP chips found!")
+    return
+  end
+  
+  local largestZ = -999
+  local leftmostStack
+  
+  for i, obj in pairs(allInArea) do
+    if obj.getPosition().z > largestZ then
+      largestZ = obj.getPosition().z
+      leftmostStack = obj
+    end
+  end
+  
+  for i=1,# buildingIds do
+    local buildingPos = getObjectFromGUID(buildingIds[i]).getPosition()
+    leftmostStack.takeObject({position = vector(buildingPos.x, 0, buildingPos.z) + Rounds.offset })
+  end
+  destroyObject(leftmostStack)
+end

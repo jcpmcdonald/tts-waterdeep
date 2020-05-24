@@ -4,7 +4,6 @@ FillUtil = {}
 
 function FillUtil.fill(slots, deckId)
   local deck = getObjectFromGUID(deckId)
-  print(deck)
   
   for k, slot in pairs(slots) do
     local cardInSlot = getUnlockedIn(slot.sensorId)
