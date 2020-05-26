@@ -79,7 +79,8 @@ function Spawner.SpawnResource(resourceObj, playerColor, alt_click)
     
     local index = 1
     for i = 1, times do
-      placementOffset = Spawner.getFirstUnoccupiedPlacementOffset(playerBoard, placementPattern, thingInfo.offset, thingInfo.scale, rotation, index)
+      local scale = (thingInfo.scale or resourceObj.getScale()) * playerBoard.getScale()
+      placementOffset = Spawner.getFirstUnoccupiedPlacementOffset(playerBoard, placementPattern, thingInfo.offset, scale, rotation, index)
       
       index = placementOffset.index
       
@@ -114,7 +115,7 @@ function Spawner.spawnThing(resourceObj, playerBoard, placementOffset, thingInfo
   })
   -- Set some properties
   cloned.setName(thingInfo.name or "")
-  cloned.setScale(thingInfo.scale or resourceObj.getScale())
+  cloned.setScale((thingInfo.scale or resourceObj.getScale()) * playerBoard.getScale())
   cloned.setLock(false)
 end
 
