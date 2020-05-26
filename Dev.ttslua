@@ -47,13 +47,86 @@ function pprint(data)
   print(JSON.encode_pretty(data))
 end
 
---
--- function align()
---   local selectedObjects = getAllSelected()
---
---
---
---   for k, obj in pairs(selectedObjects) do
---
---   end
--- end
+
+function align()
+  local selectedObjects = getAllSelected()
+
+  if # selectedObjects <= 1 then
+    log("You must select at least 2 things to align")
+  end
+  
+  local xDiff = math.abs(selectedObjects[1].getPosition().x - selectedObjects[2].getPosition().x)
+  local zDiff = math.abs(selectedObjects[1].getPosition().z - selectedObjects[2].getPosition().z)
+  
+  if xDiff > zDiff then
+    local averageZ = 0
+    for k, obj in pairs(selectedObjects) do
+      averageZ = averageZ + obj.getPosition().z
+    end
+    averageZ = averageZ / # selectedObjects
+    
+    for k, obj in pairs(selectedObjects) do
+      obj.setPosition(vector(obj.getPosition().x, obj.getPosition().y, averageZ))
+    end
+    log("Zs set to " .. averageZ)
+  else
+    local averageX = 0
+    for k, obj in pairs(selectedObjects) do
+      averageX = averageX + obj.getPosition().x
+    end
+    averageX = averageX / # selectedObjects
+    
+    for k, obj in pairs(selectedObjects) do
+      obj.setPosition(vector(averageX, obj.getPosition().y, obj.getPosition().z))
+    end
+    log("Xs set to " .. averageX)
+  end
+end
+
+
+function spacing()
+  local selectedObjects = getAllSelected()
+
+  if # selectedObjects <= 1 then
+    log("You must select at least 2 things to align")
+  end
+  
+  local xDiff = math.abs(selectedObjects[1].getPosition().x - selectedObjects[2].getPosition().x)
+  local zDiff = math.abs(selectedObjects[1].getPosition().z - selectedObjects[2].getPosition().z)
+  
+  if xDiff > zDiff then
+    local minX = 9999
+    local maxX = -9999
+    for k, obj in pairs(selectedObjects) do
+      if obj.getPosition().x < minX then minX = obj.getPosition().x end
+      if obj.getPosition().x > maxX then maxX = obj.getPosition().x end
+    end
+    local size = maxX - minX
+    local offset = size / (# selectedObjects - 1)
+    
+    for i, obj in pairs(selectedObjects) do
+      obj.setPosition(vector(minX + (offset * (i-1)), obj.getPosition().y, obj.getPosition().z))
+    end
+    
+    log("Spaced out boss")
+  else
+    local minZ = 9999
+    local maxZ = -9999
+    for k, obj in pairs(selectedObjects) do
+      if obj.getPosition().z < minZ then minZ = obj.getPosition().z end
+      if obj.getPosition().z > maxZ then maxZ = obj.getPosition().z end
+    end
+    log(minZ)
+    log(maxZ)
+    local size = maxZ - minZ
+    local offset = size / (# selectedObjects - 1)
+    log(offset)
+    
+    for i, obj in pairs(selectedObjects) do
+      log(i)
+      obj.setPosition(vector(obj.getPosition().x, obj.getPosition().y, minZ + (offset * (i-1))))
+    end
+    
+    log("Spaced out boss")
+  end
+end
