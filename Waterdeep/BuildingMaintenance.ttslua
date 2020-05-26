@@ -5,30 +5,30 @@ Buildings = {}
 Buildings.refillButton = {
     label='Refill Buildings',
     click_function='BuildingsRefill',
-    position={-0.4,0.3,0.7},
-    width=1800,
-    height=600,
-    font_size=240,
+    position={0.54,0.3,0.62},
+    width=1400,
+    height=400,
+    font_size=200,
     scale={0.06, 0.06, 0.06},
-    rotation={0, 90, 0}
+    rotation={0, 0, 0}
 }
 function BuildingsRefill() Buildings.Refill() end -- This is here because I can't call my namespaced method from a button
 
-Buildings.buildingDeckId = '93674d'
+Buildings.buildingDeckId = '50a5ce'
 Buildings.slots = {
   {
     sensorId = 'a19970',
-    position = {-4.00, 2, 3.02},
+    position = {2.34, 2, 2.69},
     rotation = {0,270,0}
   },
   {
     sensorId = '02be2a',
-    position = {-4.00, 2, -3.03},
+    position = {2.34, 2, -2.07},
     rotation = {0,270,0}
   },
   {
     sensorId = 'a70b45',
-    position = {-4.00, 2, -9.17},
+    position = {2.34, 2, -6.82},
     rotation = {0,270,0}
   }
 }

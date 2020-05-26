@@ -8,7 +8,7 @@ ReturnHome.defaults = {
 }
 
 function ReturnHome.init(defaultSpaceBetweenPawns, defaultOffset)
-  ReturnHome.defaults.spaceBetweenPawns = defaultSpaceBetweenPawns or 0.5
+  ReturnHome.defaults.spaceBetweenPawns = defaultSpaceBetweenPawns or 0.8
   ReturnHome.defaults.offset = defaultOffset or vector(0, 3, 0)
 end
 

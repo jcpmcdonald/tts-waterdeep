@@ -5,49 +5,49 @@ local Quests = {}
 Quests.resetQuestsButton = {
     label='Reset\nQuests',
     click_function='resetQuests',
-    position={1.26,0.3,0.422},
-    width=800,
-    height=600,
-    font_size=240,
+    position={0.327,0.3,-0.67},
+    width=650,
+    height=500,
+    font_size=180,
     scale={0.06, 0.06, 0.06},
-    rotation={0, 90, 0}
+    rotation={0, 0, 0}
 }
 
 Quests.refillQuestsButton = {
     label='Refill Quests',
     click_function='refillQuests',
-    position={0.98,0.3,0},
-    width=1600,
-    height=400,
-    font_size=240,
+    position={0,0.3,-0.45},
+    width=1300,
+    height=320,
+    font_size=200,
     scale={0.06, 0.06, 0.06},
-    rotation={0, 90, 0}
+    rotation={0, 0, 0}
 }
 
 Quests.questDeckId = '143f20'
 Quests.slots = {
   {
     sensorId = 'b194f0',
-    position = {32.71, 1.71, 3.68},
+    position = {30.76, 1.65, 3.14},
     rotation = {0,270,0}
   },
   {
     sensorId = 'eec865',
-    position = {32.71, 1.71, -4.65},
+    position = {30.76, 1.65, -3.32},
     rotation = {0,270,0}
   },
   {
     sensorId = '3d06fa',
-    position = {26.78, 1.72, 3.68},
+    position = {26.16, 1.66, 3.14},
     rotation = {0,270,0}
   },
   {
     sensorId = 'd7f961',
-    position = {26.77, 1.72, -4.67},
+    position = {26.16, 1.66, -3.32},
     rotation = {0,270,0}
   }
 }
-Quests.questDiscard = {29.77, 1.71, -14.70}
+Quests.questDiscard = {28.54, 2, -11.11}
 
 function Quests.init(board)
   board.createButton(Quests.resetQuestsButton)

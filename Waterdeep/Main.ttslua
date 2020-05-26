@@ -8,40 +8,53 @@
 #include BuildingMaintenance
 #include Ambassador
 #include Rounds
+#include GameSetup
 
--- homeBoxIds = {'bf3a99', '093165'}
--- homeBoardIds = {'97c397', 'f5fc8a'}
 
-boardId = 'd16e23'
+--boardId = 'd16e23'
+boardId = 'e7dc16'
 
 newRoundButton = {
     label='End Round',
     click_function='endOfRound',
-    position={-0.65,0.3,-0.19},
-    width=1400,
-    height=600,
-    font_size=240,
+    position={-0.15,0.3,0.81},
+    width=1100,
+    height=500,
+    font_size=200,
     scale={0.07, 0.07, 0.07},
-    rotation={0, 90, 0}
+    rotation={0, 0, 0}
 }
 
--- local exampleBoardId = 'f5fc8a'
-
 local homes = {
-  ["Teal"] = {
-    name = "Grey Hand",
+  Teal = {
+    name = 'Grey Hand',
     boardId = 'f5fc8a',
     pawnIds = {'09abdb', 'c82bc9', '88ea75', '4e7f70', 'd85c4c', '6c9926'},
   },
   Green = {
-    name = "Harper",
+    name = 'Harper',
     boardId = 'a414f8',
     pawnIds = {'c43e3e', 'f27fef', '2bb311', '097e57', 'e3db7f', '8ac1f3'},
   },
   White = {
-    name = "City Guard",
+    name = 'City Guard',
     boardId = '97c397',
     pawnIds = {'f2eafa', 'e80f14', 'b11405', '896101', '391416', '1839cb'}
+  },
+  Yellow = {
+    name = 'Knight of the Shield',
+    boardId = '365ed8',
+    pawnIds = {'262b22', '732002', 'c18665', '2e2dfb', 'd68b71', '66d454'}
+  },
+  Red = {
+    name = 'Red Sash',
+    boardId = 'f4e41c',
+    pawnIds = {'f2173a', 'f344a0', '07a0bd', 'cf36bf', 'a2ef23', '6aeafb'}
+  },
+  Blue = {
+    name = "Silverstar",
+    boardId = '3e8ad8',
+    pawnIds = {'d3b5f4', '1832a2', '8d97e5', '9d49c4', 'cdf332', 'db533f'}
   }
 }
 

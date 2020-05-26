@@ -3,7 +3,7 @@
 local Rounds = {}
 
 Rounds.roundsAreaId = '6af1b3'
-Rounds.offset = vector(-1.8, 5, -1.5)
+Rounds.offset = vector(-1.4, 5, -1.2)
 
 -- Takes the leftmost stack of VPs and puts one on each of the provided buildings
 function Rounds.moveVpsToBuildings(buildingIds)
