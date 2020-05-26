@@ -1,0 +1,221 @@
+
+local Setup = {}
+
+Setup.values = {}
+
+Setup.enabledColor = "#eeeeeeff"
+Setup.disabledColor = "#aaaaaaff"
+
+Setup.intrigueDeckId = '916295'
+Setup.lordsDeckId = 'f21c5c'
+
+Setup.Skullport = {
+  BagId = '559934',
+  QuestsId = '71612e',
+  IntrigueId = '36bc52',
+  LordsId = '805a6a',
+  BuildingsId = 'e676a2',
+  BoardId = '7f9acf',
+  CorruptionBoardId = '8bf62f',
+  CorruptionTokenIds = {'53af48', '3e9e65', 'eba492', 'f76bd6', '5074ca', '27381d', '125ea8',
+  '6220e7', 'ea49e2', 'fa7695', 'e7c8bd', '594477', 'fa1ae5', '5e8695', '28e48d', '3886c6',
+  '1ba7bd', '514224', 'dbf137', '5fb95a', '527cea', 'ea8575', 'a4e7e7', 'c37f0d', '734888'}  -- Don't worry, I didn't type these all
+}
+
+Setup.Undermountain = {
+  BagId = 'bdb0bd',
+  QuestsId = '8ac214',
+  IntrigueId = 'f08d48',
+  LordsId = '54f0e3',
+  BuildingsId = '2fa30b',
+  BoardId = '8c3d4e',
+}
+
+-- I load my menu using an in-game object, and use it's locked property to determine if the menu should show or hide
+Setup.startupObjectId = '6938b5'
+function Setup.init(homes)
+  Setup.homes = homes
+  if not getObjectFromGUID(Setup.startupObjectId).getLock() then
+    UI.show("setupScreen")
+  end
+end
+
+function onToggle(player, value, id)
+  Setup.values[id] = value == "True"
+  Setup.check()
+end
+
+function playerCountToggle(player, value, id)
+  if value == "True" then
+    Setup.values["numPlayers"] = tonumber(UI.getAttribute(id, "value"))
+    Setup.check()
+  end
+end
+
+-- This was rediculous, and mostly only for fun.
+-- The rules state that the long game can't be played with 6 players and
+--   that if you want to play with both expansions, that you must play with the long game
+function Setup.check()
+  
+  if Setup.values["numPlayers"] == 6 then
+    forceLongGame()
+    if Setup.values["UseSkullport"] then
+      disableUndermountain()
+    elseif Setup.values["UseUndermountain"] then
+      disableSkullport()
+    else
+      removeSkullportRestriction()
+      removeUndermountainRestriction()
+    end
+  else
+    removeSkullportRestriction()
+    removeUndermountainRestriction()
+    if Setup.values["UseSkullport"] and Setup.values["UseUndermountain"] then
+      forceLongGame()
+      disable6Players()
+    else
+      removeLongGameRestriction()
+      remove6PlayerRestriction()
+    end
+  end
+end
+
+function disableLongGame()
+  UI.setAttributes("LongGame", {isOn = "False", interactable = "False" })
+  UI.setAttributes("LongGameText", {color = Setup.disabledColor})
+  Setup.values["LongGame"] = false
+end
+
+function forceLongGame()
+  UI.setAttributes("LongGame", {isOn = "True", interactable = "False" })
+  UI.setAttributes("LongGameText", {color = Setup.disabledColor})
+  Setup.values["LongGame"] = true
+end
+
+function removeLongGameRestriction()
+  UI.setAttributes("LongGame", { interactable = "True" })
+  UI.setAttributes("LongGameText", {color = Setup.enabledColor})
+end
+
+function disableSkullport()
+  UI.setAttributes("UseSkullport", { interactable = "False" })
+  UI.setAttributes("UseSkullportText", {color = Setup.disabledColor})
+end
+
+function removeSkullportRestriction()
+  UI.setAttributes("UseSkullport", { interactable = "True" })
+  UI.setAttributes("UseSkullportText", {color = Setup.enabledColor})
+end
+
+function disableUndermountain()
+  UI.setAttributes("UseUndermountain", { interactable = "False" })
+  UI.setAttributes("UseUndermountainText", {color = Setup.disabledColor})
+end
+
+function removeUndermountainRestriction()
+  UI.setAttributes("UseUndermountain", { interactable = "True" })
+  UI.setAttributes("UseUndermountainText", {color = Setup.enabledColor})
+end
+
+function disable6Players()
+  UI.setAttributes("numPlayers6", {interactable = "False", color = Setup.disabledColor })
+end
+
+function remove6PlayerRestriction()
+  UI.setAttributes("numPlayers6", {interactable = "True", color = "#ffffffff" })
+end
+
+function dismissSetup()
+  UI.hide("setupScreen")
+end
+
+function setupGame()
+  dismissSetup()
+  
+  local numPlayers = Setup.values["numPlayers"] or 2
+  local useSkullport = Setup.values["UseSkullport"] or false
+  local useUndermountain = Setup.values["UseUndermountain"] or false
+  local longGame = Setup.values["LongGame"] or false
+  
+  if useSkullport and useUndermountain then
+    -- The rules state some extra setup:
+    -- Randomly remove 25 Intrigue, 30 Quest cards, and 12 Building tiles from the base game before suffling in the expansions
+    
+  end
+  
+  local correctNumberOfAgents
+  if numPlayers == 2 then correctNumberOfAgents = 4 end
+  if numPlayers == 3 then correctNumberOfAgents = 3 end
+  if numPlayers == 4 then correctNumberOfAgents = 2 end
+  if numPlayers == 5 then correctNumberOfAgents = 2 end
+  if numPlayers == 6 then correctNumberOfAgents = 1 end  -- 6-players is always a long game, so they will get 2 total
+  if longGame then correctNumberOfAgents = correctNumberOfAgents + 1 end
+  
+  --removeExtraAgents(correctNumberOfAgents)
+  
+  local questDeck = getObjectFromGUID(Quests.questDeckId)
+  local intrigueDeck = getObjectFromGUID(Setup.intrigueDeckId)
+  local lordsDeck = getObjectFromGUID(Setup.lordsDeckId)
+  local buildingDeck = getObjectFromGUID(Buildings.buildingDeckId)
+  
+  if useSkullport then
+    -- Merge the skullport decks
+    questDeck.putObject(getObjectFromGUID(Setup.Skullport.QuestsId))
+    intrigueDeck.putObject(getObjectFromGUID(Setup.Skullport.IntrigueId))
+    lordsDeck.putObject(getObjectFromGUID(Setup.Skullport.LordsId))
+    buildingDeck.putObject(getObjectFromGUID(Setup.Skullport.BuildingsId))
+    
+  else
+    -- Move all things skullport to the skullport bag
+    local bag = getObjectFromGUID(Setup.Skullport.BagId)
+    
+    bag.putObject(getObjectFromGUID(Setup.Skullport.QuestsId))
+    bag.putObject(getObjectFromGUID(Setup.Skullport.IntrigueId))
+    bag.putObject(getObjectFromGUID(Setup.Skullport.LordsId))
+    bag.putObject(getObjectFromGUID(Setup.Skullport.BuildingsId))
+    bag.putObject(getObjectFromGUID(Setup.Skullport.BoardId))
+    bag.putObject(getObjectFromGUID(Setup.Skullport.CorruptionBoardId))
+    
+    local first = true
+    for i, skull in pairs(Setup.Skullport.CorruptionTokenIds) do
+      if first then
+        -- Save one
+        bag.putObject(getObjectFromGUID(skull))
+        first = false
+      else
+        -- Delete the rest
+        destroyObject(getObjectFromGUID(skull))
+      end
+    end
+  end
+  
+  if useUndermountain then
+    -- Merge the Undermountain decks
+    questDeck.putObject(getObjectFromGUID(Setup.Undermountain.QuestsId))
+    intrigueDeck.putObject(getObjectFromGUID(Setup.Undermountain.IntrigueId))
+    lordsDeck.putObject(getObjectFromGUID(Setup.Undermountain.LordsId))
+    buildingDeck.putObject(getObjectFromGUID(Setup.Undermountain.BuildingsId))
+  else
+    local bag = getObjectFromGUID(Setup.Undermountain.BagId)
+    
+    bag.putObject(getObjectFromGUID(Setup.Undermountain.QuestsId))
+    bag.putObject(getObjectFromGUID(Setup.Undermountain.IntrigueId))
+    bag.putObject(getObjectFromGUID(Setup.Undermountain.LordsId))
+    bag.putObject(getObjectFromGUID(Setup.Undermountain.BuildingsId))
+    bag.putObject(getObjectFromGUID(Setup.Undermountain.BoardId))
+  end
+  
+end
+
+-- This assumes that there is 1 worker locked to the round-5 slot
+function removeExtraAgents(correctNumberOfAgents)
+  for i, home in pairs(Setup.homes) do
+    local deletable = getUnlockedInSet(home.pawnIds)
+    local numberToDelete = # deletable - correctNumberOfAgents
+    
+    -- Not that it matters, but delete from the end of the list
+    for k=correctNumberOfAgents + 1, (numberToDelete + correctNumberOfAgents) do
+      destroyObject(getObjectFromGUID(home.pawnIds[k]))
+    end
+  end
+end

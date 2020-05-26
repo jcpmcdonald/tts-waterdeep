@@ -49,11 +49,11 @@
         offsetXY="0 30" />
       <ToggleGroup height="30" width="300">
         <HorizontalLayout>
-          <ToggleButton>2</ToggleButton>
-          <ToggleButton>3</ToggleButton>
-          <ToggleButton>4</ToggleButton>
-          <ToggleButton>5</ToggleButton>
-          <ToggleButton>6</ToggleButton>
+          <ToggleButton id="numPlayers2" onValueChanged="playerCountToggle" value="2">2</ToggleButton>
+          <ToggleButton id="numPlayers3" onValueChanged="playerCountToggle" value="3">3</ToggleButton>
+          <ToggleButton id="numPlayers4" onValueChanged="playerCountToggle" value="4">4</ToggleButton>
+          <ToggleButton id="numPlayers5" onValueChanged="playerCountToggle" value="5">5</ToggleButton>
+          <ToggleButton id="numPlayers6" onValueChanged="playerCountToggle" value="6">6</ToggleButton>
         </HorizontalLayout>
       </ToggleGroup>
     </Panel>
@@ -63,22 +63,28 @@
       width="711"
       offsetXY="0 -220">
       <Toggle
+        id="UseSkullport"
+        onValueChanged="onToggle"
         height="40"
         width="250"
         offsetXY="0 50">
-        <Text text="Skullport Expansion" />
+        <Text id="UseSkullportText" text="Skullport Expansion" />
       </Toggle>
       <Toggle
+        id="UseUndermountain"
+        onValueChanged="onToggle"
         height="40"
         width="250"
         offsetXY="0 0">
-        <Text text="Undermountain Expansion" /></Toggle>
+        <Text id="UseUndermountainText" text="Undermountain Expansion" /></Toggle>
       <Toggle
+        id="LongGame"
+        onValueChanged="onToggle"
         height="40"
         width="250"
         offsetXY="0 -50"
-        tooltip="Gives all players an extra meeple (official variant)">
-        <Text text="Long Game" />
+        tooltip="Gives all players an extra meeple. Not for use with 6 players. Mandatory when using both expansions.">
+        <Text id="LongGameText" text="Long Game" />
       </Toggle>
       <Button
         height="40"

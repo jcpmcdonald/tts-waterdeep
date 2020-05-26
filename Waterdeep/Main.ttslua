@@ -11,7 +11,6 @@
 #include GameSetup
 
 
---boardId = 'd16e23'
 boardId = 'e7dc16'
 
 newRoundButton = {
@@ -98,20 +97,11 @@ local spawnables = {
   }
 }
 
-showSetupScreen = true
-
 function onLoad(save_state)
   print(save_state)
   local savedData = {}
   if save_state ~= "" then
     savedData = JSON.decode(save_state)
-    
-    -- Overwrite the first load with the saved data
-    showSetupScreen = savedData and savedData.showSetupScreen
-  end
-  
-  if showSetupScreen then
-    self.UI.show("setupScreen")
   end
   
   local board = getObjectFromGUID(boardId)
@@ -123,6 +113,8 @@ function onLoad(save_state)
   Amb.Init(savedData and savedData.Amb or nil, homes)
   
   Spawner.SetUpSpawnables(spawnables, homes, Spawner.Pattern3by5(1.5, 1))
+  
+  Setup.init(homes)
 end
 
 function onSave()
@@ -130,10 +122,6 @@ function onSave()
   local ambData = Amb.save()
   if ambData then
     data.Amb = ambData
-  end
-  
-  if showSetupScreen == false then
-    data.showSetupScreen = false
   end
   
   if next(data) ~= nil then
@@ -165,14 +153,4 @@ function endOfRound()
   
   -- Wait until buildings settle (or 2 seconds)
   Wait.condition(getMarketAndPlaceVps, marketIsFullAndAtRest, 2, getMarketAndPlaceVps)
-end
-
-function dismissSetup()
-  showSetupScreen = false
-  self.UI.hide("setupScreen")
-end
-
-function setupGame()
-  showSetupScreen = false
-  self.UI.hide("setupScreen")
 end

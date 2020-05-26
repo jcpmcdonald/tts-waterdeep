@@ -49,6 +49,11 @@ function Amb.save()
   return Amb.extraWorkers
 end
 
+-- For dev use
+function clearExtraWorkers()
+  Amb.extraWorkers = nil
+end
+
 function SpawnExtraPawn(obj, playerColor, alt_click) Amb.SpawnExtraPawn(obj, playerColor, alt_click) end
 function Amb.SpawnExtraPawn(obj, playerColor, alt_click)
   -- Don't accept right-clicks
