@@ -244,6 +244,8 @@ function setupGame_Coroutine()
     bag.putObject(getObjectFromGUID(Setup.Undermountain.BoardId))
   end
   
+  lordsDeck.setPosition({-39.45, 1.60, -30.00})
+  
   questDeck.shuffle()
   intrigueDeck.shuffle()
   lordsDeck.shuffle()

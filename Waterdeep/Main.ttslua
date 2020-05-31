@@ -105,7 +105,6 @@ local spawnables = {
 }
 
 function onLoad(save_state)
-  print(save_state)
   local savedData = {}
   if save_state ~= "" then
     savedData = JSON.decode(save_state)
