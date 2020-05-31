@@ -4,6 +4,9 @@ local Rounds = {}
 
 Rounds.roundsAreaId = '6af1b3'
 Rounds.offset = vector(-1.4, 5, -1.2)
+Rounds.fourthRoundVpZoneId = 'c6fe6e'
+Rounds.fifthRoundVpZoneId = '30054c'
+Rounds.fifthRoundAgentZoneId = 'dee27f'
 
 -- Takes the leftmost stack of VPs and puts one on each of the provided buildings
 function Rounds.moveVpsToBuildings(buildingIds)
@@ -30,4 +33,24 @@ function Rounds.moveVpsToBuildings(buildingIds)
     leftmostStack.takeObject({position = vector(buildingPos.x, 0, buildingPos.z) + Rounds.offset })
   end
   destroyObject(leftmostStack)
+end
+
+function Rounds.checkForFifthRound()
+  local fourthRoundVpZone = getObjectFromGUID(Rounds.fourthRoundVpZoneId)
+  
+  if # fourthRoundVpZone.getObjects() == 0 then
+    local fifthRoundVpZone = getObjectFromGUID(Rounds.fifthRoundVpZoneId)
+    if # fifthRoundVpZone.getObjects() > 0 then
+      Rounds.unlockFifthRoundAgents()
+    end
+  end
+end
+
+function Rounds.unlockFifthRoundAgents(mainBoardId)
+  local agentZone = getObjectFromGUID(Rounds.fifthRoundAgentZoneId)
+  for i, agent in pairs(agentZone.getObjects()) do
+    if agent.getGUID() ~= mainBoardId then
+      agent.setLock(false)
+    end
+  end
 end

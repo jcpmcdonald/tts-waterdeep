@@ -3,16 +3,16 @@
 Buildings = {}
 
 Buildings.refillButton = {
-    label='Refill Buildings',
+    label='Fill Buildings',
     click_function='BuildingsRefill',
     position={0.54,0.3,0.62},
     width=1400,
     height=400,
     font_size=200,
-    scale={0.06, 0.06, 0.06},
+    scale={0.07, 0.07, 0.07},
     rotation={0, 0, 0}
 }
-function BuildingsRefill() Buildings.Refill() end -- This is here because I can't call my namespaced method from a button
+function BuildingsRefill() Buildings.refill() end -- This is here because I can't call my namespaced method from a button
 
 Buildings.buildingDeckId = '50a5ce'
 Buildings.slots = {
@@ -37,7 +37,7 @@ function Buildings.Init(board)
   board.createButton(Buildings.refillButton)
 end
 
-function Buildings.Refill()
+function Buildings.refill()
   FillUtil.fill(Buildings.slots, Buildings.buildingDeckId)
 end
 

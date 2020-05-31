@@ -24,13 +24,14 @@ Spawner.thingInfos = {}
 --     name = 'Rogue',                                      -- [Optional] string - Name you want to assign to the clone. Defaults to empty
 --     offset = vector(-1, 0, -5),                          -- vector - The offset from the center of the player board to spawn
 --     scale = vector(1, 1, 1),                             -- vector - The scale of the clone
---     placementPattern = Spawner.Pattern3by5(-1.5, 0.9)    -- [Optional] array of vector - The spawning pattern to follow. If your resources don't stack, this can place them in a pattern to prevent heaps
+--     placementPattern = Spawner.Pattern3by5(-1.5, 0.9),   -- [Optional] array of vector - The spawning pattern to follow. If your resources don't stack, this can place them in a pattern to prevent heaps
+--     rightClickSpawnCount = 5                             -- [Optional] number - The number of this resource to spawn on right-click. 0 disables right-clicking
 --   },
 --   ...
 -- }
 --
--- Boards is expected to be an array:
--- boards = {
+-- Homes is expected to be an array:
+-- homes = {
 --   [White] = {                                            -- Player colors
 --     boardId = '123456'                                   -- GUID of the player's board
 --   },
@@ -41,7 +42,7 @@ Spawner.thingInfos = {}
 -- There are a couple helper methods at the bottom of this file that will generate various placement patterns.
 -- This placementPattern can be overriden for individual spawnables.
 -- If no placement pattern is provided at all, the spawnables will spawn on the same place. This is desiarable for stackables
-function Spawner.SetUpSpawnables(spawnables, boards, placementPattern)
+function Spawner.SetUpSpawnables(spawnables, homes, placementPattern, defaultRightClickAmount)
   for i, spawnable in pairs(spawnables) do
     getObjectFromGUID(i).createButton({
       click_function="SpawnResource",
@@ -55,18 +56,21 @@ function Spawner.SetUpSpawnables(spawnables, boards, placementPattern)
   
   Spawner.thingInfos = spawnables
   Spawner.defaultPlacementPattern = placementPattern or { vector(0, 0, 0) }
-  Spawner.boards = boards
+  Spawner.RightClickSpawnCount = defaultRightClickAmount or 5
+  Spawner.homes = homes
   
-  -- Required to see if there are things in the way of the spawn
-  initSensorZone()
+  for k, home in pairs(Spawner.homes) do
+    home.sensor = getObjectFromGUID(home.sensorId)
+  end
 end
 
 function SpawnResource(resourceObj, playerColor, alt_click) Spawner.SpawnResource(resourceObj, playerColor, alt_click) end
 function Spawner.SpawnResource(resourceObj, playerColor, alt_click)
-  if alt_click and Spawner.RightClickSpawnCount <= 0 then return end
+  local rightClickAmount = Spawner.thingInfos[resourceObj.guid].rightClickSpawnCount or Spawner.RightClickSpawnCount
+  if alt_click and rightClickAmount <= 0 then return end
   
   function embedded()
-    local playerBoard = getObjectFromGUID(Spawner.boards[playerColor].boardId)
+    local playerBoard = getObjectFromGUID(Spawner.homes[playerColor].boardId)
     local thingInfo = Spawner.thingInfos[resourceObj.guid]
     
     -- Don't pile token on top of eachother by using a placement pattern
@@ -75,12 +79,12 @@ function Spawner.SpawnResource(resourceObj, playerColor, alt_click)
     local rotation = playerBoard.getRotation() + (thingInfo.rotation or vector(0, 0, 0))
     
     local times = 1
-    if alt_click then times = Spawner.RightClickSpawnCount end
+    if alt_click then times = rightClickAmount end
     
     local index = 1
     for i = 1, times do
       local scale = (thingInfo.scale or resourceObj.getScale()) * playerBoard.getScale()
-      placementOffset = Spawner.getFirstUnoccupiedPlacementOffset(playerBoard, placementPattern, thingInfo.offset, scale, rotation, index)
+      placementOffset = Spawner.getFirstUnoccupiedPlacementOffset(Spawner.homes[playerColor].sensor, playerBoard, placementPattern, thingInfo.offset, scale, rotation, index)
       
       index = placementOffset.index
       
@@ -93,12 +97,12 @@ function Spawner.SpawnResource(resourceObj, playerColor, alt_click)
   startLuaCoroutine(Global, "embedded")
 end
 
-function Spawner.getFirstUnoccupiedPlacementOffset(board, placementPattern, initialOffset, scale, rotation, startAt)
+function Spawner.getFirstUnoccupiedPlacementOffset(sensor, playerBoard, placementPattern, initialOffset, scale, rotation, startAt)
   startAt = math.min(startAt or 1, # placementPattern)
   for i=startAt,# placementPattern do
     local placementOffset = placementPattern[i]
     local pos = initialOffset + placementOffset
-    if not isUnlockedNearbySmart(board.positionToWorld(pos), scale, rotation, {board.guid}) then
+    if not isUnlockedInSensor(sensor, playerBoard.positionToWorld(pos), scale, rotation, {playerBoard.guid}) then
       return { index = i, offset = placementOffset}
     end
   end

@@ -43,25 +43,14 @@ function isUnlockedNearby(position, dist)
   return false
 end
 
-local sensorZone = {}
-function initSensorZone()
-  local sensorZoneDetails = {
-    position = {0, 0, 0},
-    scale = {2, 2, 2},
-    type = 'ScriptingTrigger',
-    rotation = {0, 0, 0}
-  }
-  sensorZone = spawnObject(sensorZoneDetails)
-end
-
 -- Needs to be run inside a co-routine
-function isUnlockedNearbySmart(position, scale, rotation, exceptions)
-  sensorZone.setScale({scale.x, 20, scale.z})
-  sensorZone.setPosition({position.x, 2, position.z})
-  sensorZone.setRotation(rotation)
+function isUnlockedInSensor(sensor, position, scale, rotation, exceptions)
+  sensor.setScale({scale.x, 20, scale.z})
+  sensor.setPosition({position.x, 2, position.z})
+  sensor.setRotation(rotation)
   coroutine.yield(0)
   
-  return # getUnlockedIn(sensorZone, exceptions) > 0
+  return # getUnlockedIn(sensor, exceptions) > 0
 end
 
 -- Needs to be run inside a co-routine

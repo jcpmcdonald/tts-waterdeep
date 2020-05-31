@@ -34,35 +34,38 @@ function ReturnHome.returnHome(homes)
   for i, homeInfo in pairs(homes) do
     local homeBoard = getObjectFromGUID(homeInfo.boardId)
     
-    -- Get a list of the unlocked pawns
-    local unlockedPawns = getUnlockedInSet(homeInfo.pawnIds)
-    local pawnWidth = ReturnHome.getAverageWidthOfPawns(unlockedPawns)
-    
-    local spaceBetweenPawns = homeInfo.spaceBetweenPawns or ReturnHome.defaults.spaceBetweenPawns
-    local offset = homeInfo.offset or ReturnHome.defaults.offset
-    local pawnArrangementWidth = ReturnHome.getPawnArrangementWidth(unlockedPawns, pawnWidth, spaceBetweenPawns)
-    
-    -- Arrange the unlocked pawns
-    for k, pawn in pairs(unlockedPawns) do
-      -- Orient the pawn relative to the board
-      local pawnRotation = homeBoard.getRotation()
-      if not homeInfo.pawnRotation == nil then
-        -- Use the provided rotation
-        pawnRotation = pawnRotation + homeInfo.pawnRotation
-      elseif pawn.getBoundsNormalized().size.x > pawn.getBoundsNormalized().size.z then
-        -- Rotate by 90 degrees so that non-square things are taller than wide. eg: ||| instead of ---
-        pawnRotation = pawnRotation + vector(0, 90, 0)
+    -- Stop here if the player board does not exist
+    if homeBoard != nil then
+      -- Get a list of the unlocked pawns
+      local unlockedPawns = getUnlockedInSet(homeInfo.pawnIds)
+      local pawnWidth = ReturnHome.getAverageWidthOfPawns(unlockedPawns)
+      
+      local spaceBetweenPawns = homeInfo.spaceBetweenPawns or ReturnHome.defaults.spaceBetweenPawns
+      local offset = homeInfo.offset or ReturnHome.defaults.offset
+      local pawnArrangementWidth = ReturnHome.getPawnArrangementWidth(unlockedPawns, pawnWidth, spaceBetweenPawns)
+      
+      -- Arrange the unlocked pawns
+      for k, pawn in pairs(unlockedPawns) do
+        -- Orient the pawn relative to the board
+        local pawnRotation = homeBoard.getRotation()
+        if not homeInfo.pawnRotation == nil then
+          -- Use the provided rotation
+          pawnRotation = pawnRotation + homeInfo.pawnRotation
+        elseif pawn.getBoundsNormalized().size.x > pawn.getBoundsNormalized().size.z then
+          -- Rotate by 90 degrees so that non-square things are taller than wide. eg: ||| instead of ---
+          pawnRotation = pawnRotation + vector(0, 90, 0)
+        end
+        pawn.setRotationSmooth(pawnRotation, false, false)
+        
+        -- Move the pawn
+        local offsetFromPrevious = (spaceBetweenPawns + pawnWidth) * (k - 1)
+        
+        local x = offset.x + (pawnArrangementWidth / 2) - (pawnWidth / 2) - offsetFromPrevious
+        local y = offset.y
+        local z = offset.z
+        
+        pawn.setPositionSmooth(homeBoard.positionToWorld({x, y, z}), false, false)
       end
-      pawn.setRotationSmooth(pawnRotation, false, false)
-      
-      -- Move the pawn
-      local offsetFromPrevious = (spaceBetweenPawns + pawnWidth) * (k - 1)
-      
-      local x = offset.x + (pawnArrangementWidth / 2) - (pawnWidth / 2) - offsetFromPrevious
-      local y = offset.y
-      local z = offset.z
-      
-      pawn.setPositionSmooth(homeBoard.positionToWorld({x, y, z}), false, false)
     end
   end
 end

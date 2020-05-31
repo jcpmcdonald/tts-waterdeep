@@ -13,47 +13,48 @@
 
 boardId = 'e7dc16'
 
-newRoundButton = {
-    label='End Round',
-    click_function='endOfRound',
-    position={-0.15,0.3,0.81},
-    width=1100,
-    height=500,
-    font_size=200,
-    scale={0.07, 0.07, 0.07},
-    rotation={0, 0, 0}
-}
-
 local homes = {
   Teal = {
     name = 'Grey Hand',
     boardId = 'f5fc8a',
-    pawnIds = {'09abdb', 'c82bc9', '88ea75', '4e7f70', 'd85c4c', '6c9926'},
+    pawnIds = {'09abdb', 'c82bc9', '88ea75', '4e7f70', '4e7cd2', '6c9926'},
+    sensorId = '98568e',
+    scoreMarkerId = '5aa649'
   },
   Green = {
     name = 'Harper',
     boardId = 'a414f8',
-    pawnIds = {'c43e3e', 'f27fef', '2bb311', '097e57', 'e3db7f', '8ac1f3'},
+    pawnIds = {'c43e3e', 'f27fef', '2bb311', '097e57', '4778d4', '8ac1f3'},
+    sensorId = 'e10c59',
+    scoreMarkerId = '456e79'
   },
   White = {
     name = 'City Guard',
     boardId = '97c397',
-    pawnIds = {'f2eafa', 'e80f14', 'b11405', '896101', '391416', '1839cb'}
+    pawnIds = {'f2eafa', 'e80f14', 'b11405', '896101', '7c9208', '1839cb'},
+    sensorId = '33fc21',
+    scoreMarkerId = 'a7db00'
   },
   Yellow = {
     name = 'Knight of the Shield',
     boardId = '365ed8',
-    pawnIds = {'262b22', '732002', 'c18665', '2e2dfb', 'd68b71', '66d454'}
+    pawnIds = {'262b22', '732002', 'c18665', '2e2dfb', '0abdd0', '66d454'},
+    sensorId = 'ec2f1c',
+    scoreMarkerId = '45e896'
   },
   Red = {
     name = 'Red Sash',
     boardId = 'f4e41c',
-    pawnIds = {'f2173a', 'f344a0', '07a0bd', 'cf36bf', 'a2ef23', '6aeafb'}
+    pawnIds = {'f2173a', 'f344a0', '07a0bd', 'cf36bf', 'bcfb51', '6aeafb'},
+    sensorId = '459900',
+    scoreMarkerId = '02553e'
   },
   Blue = {
     name = "Silverstar",
     boardId = '3e8ad8',
-    pawnIds = {'d3b5f4', '1832a2', '8d97e5', '9d49c4', 'cdf332', 'db533f'}
+    pawnIds = {'d3b5f4', '1832a2', '8d97e5', '9d49c4', '2e1612', 'db533f'},
+    sensorId = 'e11fb9',
+    scoreMarkerId = '19f7aa'
   }
 }
 
@@ -63,37 +64,43 @@ local spawnables = {
     name = 'Rogue',
     offset = vector(-1, 0, -5),
     scale = vector(1, 1, 1),
-    placementPattern = Spawner.Pattern3by5(-1.5, 0.9)
+    placementPattern = Spawner.Pattern3by5(-1.5, 0.9),
+    rightClickSpawnCount = 2
   },
   ['79fc35'] = {
     name = 'Fighter',
     offset = vector(4, 0, -5),
     scale = vector(1, 1, 1),
-    placementPattern = Spawner.Pattern3by5(-1.5, 0.9)
+    placementPattern = Spawner.Pattern3by5(-1.5, 0.9),
+    rightClickSpawnCount = 2
   },
   ['4a9cda'] = {
     name = 'Cleric',
     offset = vector(-1, 0, 0.4),
     scale = vector(1, 1, 1),
-    placementPattern = Spawner.Pattern3by5(-1.5, -0.9)
+    placementPattern = Spawner.Pattern3by5(-1.5, -0.9),
+    rightClickSpawnCount = 2
   },
   ['c57614'] = {
     name = 'Wizard',
     offset = vector(4, 0, 0.4),
     scale = vector(1, 1, 1),
-    placementPattern = Spawner.Pattern3by5(-1.5, -0.9)
+    placementPattern = Spawner.Pattern3by5(-1.5, -0.9),
+    rightClickSpawnCount = 2
   },
   ['94320b'] = {
     name = 'Gold',
     offset = vector(3.2, 0, 1.9),
     scale = vector(1.2, 1.2, 1.2),
-    placementPattern = { vector(0, 0, 0) }
+    placementPattern = { vector(0, 0, 0) },
+    rightClickSpawnCount = 4
   },
   ['2b63fb'] = {
     name = 'x 5 Gold',
     offset = vector(-3.1, 0, 1.9),
     scale = vector(1.2, 1.2, 1.2),
-    placementPattern = { vector(0, 0, 0) }
+    placementPattern = { vector(0, 0, 0) },
+    rightClickSpawnCount = 0
   }
 }
 
@@ -105,7 +112,38 @@ function onLoad(save_state)
   end
   
   local board = getObjectFromGUID(boardId)
-  board.createButton(newRoundButton)
+  board.createButton({
+      label='Fill VPs',
+      click_function='addVpTokens',
+      position={-0.15,0.3,0.77},
+      width=1100,
+      height=400,
+      font_size=150,
+      scale={0.07, 0.07, 0.07},
+      rotation={0, 0, 0}
+  })
+  
+  board.createButton({
+      label='Return Agents',
+      click_function='returnAgentsHome',
+      position={-0.15,0.3,0.84},
+      width=1100,
+      height=400,
+      font_size=150,
+      scale={0.07, 0.07, 0.07},
+      rotation={0, 0, 0}
+  })
+  
+  board.createButton({
+      label='Unlock 5th Round Agents',
+      click_function='unlockFifthRoundAgents',
+      position={0.15,0.3,0.76},
+      width=1800,
+      height=300,
+      font_size=150,
+      scale={0.07, 0.07, 0.07},
+      rotation={0, 0, 0}
+  })
   
   ReturnHome.init(nil, vector(0, 2, -9))
   Quests.init(board)
@@ -131,11 +169,17 @@ function onSave()
   end
 end
 
-function endOfRound()
-  ReturnHome.returnHome(homes)
-  
+-- This does too much, and is better broken out
+-- function endOfRound()
+--   Rounds.checkForFifthRound() -- This will unlock the extra agents
+--   ReturnHome.returnHome(homes)
+--
+--   addVpTokens()
+-- end
+
+function addVpTokens()
   -- Make sure the buildings are full (they should always be, but the next code relies on it)
-  Buildings.Refill()
+  Buildings.refill()
   
   local marketIsFullAndAtRest = function()
     local marketIds = Buildings.GetBuildingIdsInMarket()
@@ -153,4 +197,13 @@ function endOfRound()
   
   -- Wait until buildings settle (or 2 seconds)
   Wait.condition(getMarketAndPlaceVps, marketIsFullAndAtRest, 2, getMarketAndPlaceVps)
+end
+
+function returnAgentsHome()
+  ReturnHome.returnHome(homes)
+end
+
+function unlockFifthRoundAgents()
+  Rounds.unlockFifthRoundAgents(boardId)
+  ReturnHome.returnHome(homes)
 end

@@ -28,10 +28,11 @@ function Amb.Init(saved_data, homes)
   ambassador.createButton({
             click_function="SpawnExtraPawn",
             function_owner=self,
-            width=1000,
-            height=1000,
+            width=1500,
+            height=1500,
             position={0,-0.9,0},
             rotation={0,0,0},
+            tooltip="   Create an Extra Agent\n(Ambassador, Lieutenant)"
         })
   
   -- Re-load our extra workers
@@ -77,7 +78,7 @@ function Amb.SpawnExtraPawn(obj, playerColor, alt_click)
   local hasGuid = function() return dupe.guid != '' and dupe.guid != obj.guid end
   Wait.condition(|| Amb.assignPawnToHomeBoard(dupe.guid, playerColor), hasGuid)
   
-  broadcastToAll(playerColor .. " has taken the an extra pawn")
+  broadcastToAll(playerColor .. " has taken an extra Agent")
 end
 
 function Amb.assignPawnToHomeBoard(objId, playerColor)

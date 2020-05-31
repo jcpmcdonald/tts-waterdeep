@@ -6,20 +6,25 @@ Setup.values = {}
 Setup.enabledColor = "#eeeeeeff"
 Setup.disabledColor = "#aaaaaaff"
 
+Setup.unusedBitsBagId = 'c8659f'
 Setup.intrigueDeckId = '916295'
 Setup.lordsDeckId = 'f21c5c'
+Setup.promoCardId = '594968'
+Setup.extraAgentId = '8a5af4'
 
 Setup.Skullport = {
   BagId = '559934',
   QuestsId = '71612e',
-  IntrigueId = '36bc52',
+  IntrigueId = '1e1263',
   LordsId = '805a6a',
   BuildingsId = 'e676a2',
   BoardId = '7f9acf',
   CorruptionBoardId = '8bf62f',
-  CorruptionTokenIds = {'53af48', '3e9e65', 'eba492', 'f76bd6', '5074ca', '27381d', '125ea8',
-  '6220e7', 'ea49e2', 'fa7695', 'e7c8bd', '594477', 'fa1ae5', '5e8695', '28e48d', '3886c6',
-  '1ba7bd', '514224', 'dbf137', '5fb95a', '527cea', 'ea8575', 'a4e7e7', 'c37f0d', '734888'}  -- Don't worry, I didn't type these all
+  CorruptionTokenIds = {'53af48', '3e9e65', 'eba492', 'f76bd6', '5074ca', '27381d',
+  '125ea8', 'ea49e2', 'fa7695', 'e7c8bd', '594477', 'fa1ae5', '3886c6', '1ba7bd',
+  '514224', 'dbf137', '5fb95a', '527cea', 'ea8575', 'a4e7e7', 'c37f0d', '734888',
+  '11817a', '28e48d', '6220e7'},  -- Don't worry, I didn't type these all
+  CorruptionBagIds = {'96c41a', '4874f5', '03cef3', 'c72d39', 'f3cde3', '53cb85'}
 }
 
 Setup.Undermountain = {
@@ -35,9 +40,19 @@ Setup.Undermountain = {
 Setup.startupObjectId = '6938b5'
 function Setup.init(homes)
   Setup.homes = homes
-  if not getObjectFromGUID(Setup.startupObjectId).getLock() then
-    UI.show("setupScreen")
-  end
+  
+  Setup.startupObject = getObjectFromGUID(Setup.startupObjectId)
+  Setup.startupObject.createButton({
+    click_function = "showSetupScreen",
+    label          = "Start a Game",
+    position       = vector(0, 2, 0),
+    rotation       = vector(0, 90, 0),
+    scale          = vector(10, 10, 10),
+    width          = 1000,
+    height         = 200,
+    font_size      = 80,
+    tooltip        = "Launch the game setup tool\n---\nIt's recommended that you haven't touched too much before setting up the game"
+  })
 end
 
 function onToggle(player, value, id)
@@ -58,71 +73,76 @@ end
 function Setup.check()
   
   if Setup.values["numPlayers"] == 6 then
-    forceLongGame()
+    Setup.forceLongGame()
     if Setup.values["UseSkullport"] then
-      disableUndermountain()
+      Setup.disableUndermountain()
     elseif Setup.values["UseUndermountain"] then
-      disableSkullport()
+      Setup.disableSkullport()
     else
-      removeSkullportRestriction()
-      removeUndermountainRestriction()
+      Setup.removeSkullportRestriction()
+      Setup.removeUndermountainRestriction()
     end
   else
-    removeSkullportRestriction()
-    removeUndermountainRestriction()
+    Setup.removeSkullportRestriction()
+    Setup.removeUndermountainRestriction()
     if Setup.values["UseSkullport"] and Setup.values["UseUndermountain"] then
-      forceLongGame()
-      disable6Players()
+      Setup.forceLongGame()
+      Setup.disable6Players()
     else
-      removeLongGameRestriction()
-      remove6PlayerRestriction()
+      Setup.removeLongGameRestriction()
+      Setup.remove6PlayerRestriction()
     end
   end
 end
 
-function disableLongGame()
+function Setup.disableLongGame()
   UI.setAttributes("LongGame", {isOn = "False", interactable = "False" })
   UI.setAttributes("LongGameText", {color = Setup.disabledColor})
   Setup.values["LongGame"] = false
 end
 
-function forceLongGame()
+function Setup.forceLongGame()
   UI.setAttributes("LongGame", {isOn = "True", interactable = "False" })
   UI.setAttributes("LongGameText", {color = Setup.disabledColor})
   Setup.values["LongGame"] = true
 end
 
-function removeLongGameRestriction()
+function Setup.removeLongGameRestriction()
   UI.setAttributes("LongGame", { interactable = "True" })
   UI.setAttributes("LongGameText", {color = Setup.enabledColor})
 end
 
-function disableSkullport()
+function Setup.disableSkullport()
   UI.setAttributes("UseSkullport", { interactable = "False" })
   UI.setAttributes("UseSkullportText", {color = Setup.disabledColor})
 end
 
-function removeSkullportRestriction()
+function Setup.removeSkullportRestriction()
   UI.setAttributes("UseSkullport", { interactable = "True" })
   UI.setAttributes("UseSkullportText", {color = Setup.enabledColor})
 end
 
-function disableUndermountain()
+function Setup.disableUndermountain()
   UI.setAttributes("UseUndermountain", { interactable = "False" })
   UI.setAttributes("UseUndermountainText", {color = Setup.disabledColor})
 end
 
-function removeUndermountainRestriction()
+function Setup.removeUndermountainRestriction()
   UI.setAttributes("UseUndermountain", { interactable = "True" })
   UI.setAttributes("UseUndermountainText", {color = Setup.enabledColor})
 end
 
-function disable6Players()
+function Setup.disable6Players()
   UI.setAttributes("numPlayers6", {interactable = "False", color = Setup.disabledColor })
 end
 
-function remove6PlayerRestriction()
+function Setup.remove6PlayerRestriction()
   UI.setAttributes("numPlayers6", {interactable = "True", color = "#ffffffff" })
+end
+
+
+function showSetupScreen()
+  UI.show("setupScreen")
 end
 
 function dismissSetup()
@@ -130,17 +150,55 @@ function dismissSetup()
 end
 
 function setupGame()
-  dismissSetup()
+  startLuaCoroutine(Global, "setupGame_Coroutine")
+end
+
+function skipSetup()
+  UI.hide("setupScreen")
+  
+  Setup.unusedBitsBag = getObjectFromGUID(Setup.unusedBitsBagId)
+  Setup.unusedBitsBag.putObject(Setup.startupObject)
+end
+
+function setupGame_Coroutine()
+  UI.hide("setupScreen")
+  
+  Setup.unusedBitsBag = getObjectFromGUID(Setup.unusedBitsBagId)
+  
+  Setup.unusedBitsBag.putObject(Setup.startupObject)
   
   local numPlayers = Setup.values["numPlayers"] or 2
   local useSkullport = Setup.values["UseSkullport"] or false
   local useUndermountain = Setup.values["UseUndermountain"] or false
   local longGame = Setup.values["LongGame"] or false
+  local usePromo = Setup.values["Promo"] or false
+  
+  local questDeck = getObjectFromGUID(Quests.questDeckId)
+  local intrigueDeck = getObjectFromGUID(Setup.intrigueDeckId)
+  local lordsDeck = getObjectFromGUID(Setup.lordsDeckId)
+  local buildingDeck = getObjectFromGUID(Buildings.buildingDeckId)
   
   if useSkullport and useUndermountain then
     -- The rules state some extra setup:
     -- Randomly remove 25 Intrigue, 30 Quest cards, and 12 Building tiles from the base game before suffling in the expansions
+    intrigueDeck.shuffle()
+    questDeck.shuffle()
+    buildingDeck.shuffle()
     
+    coroutine.yield(0)
+    
+    local intrigueCut = intrigueDeck.cut(25)
+    local questCut = questDeck.cut(30)
+    local buildingCut = buildingDeck.cut(12)
+    
+    intrigueCut[2].setPosition({-39.41, 1.67, -34.31})
+    intrigueCut[2].rotate(vector(0, 270, 0))
+    
+    questCut[2].setPosition({-45.86, 1.70, -28.91})
+    questCut[2].rotate(vector(0, 270, 0))
+    
+    buildingCut[2].setPosition({-45.86, 1.61, -34.21})
+    buildingCut[2].rotate(vector(0, 270, 0))
   end
   
   local correctNumberOfAgents
@@ -151,12 +209,13 @@ function setupGame()
   if numPlayers == 6 then correctNumberOfAgents = 1 end  -- 6-players is always a long game, so they will get 2 total
   if longGame then correctNumberOfAgents = correctNumberOfAgents + 1 end
   
-  --removeExtraAgents(correctNumberOfAgents)
+  removeExtraAgents(correctNumberOfAgents)
   
-  local questDeck = getObjectFromGUID(Quests.questDeckId)
-  local intrigueDeck = getObjectFromGUID(Setup.intrigueDeckId)
-  local lordsDeck = getObjectFromGUID(Setup.lordsDeckId)
-  local buildingDeck = getObjectFromGUID(Buildings.buildingDeckId)
+  if usePromo then
+    intrigueDeck.putObject(getObjectFromGUID(Setup.promoCardId))
+  else
+    Setup.unusedBitsBag.putObject(getObjectFromGUID(Setup.promoCardId))
+  end
   
   if useSkullport then
     -- Merge the skullport decks
@@ -166,27 +225,7 @@ function setupGame()
     buildingDeck.putObject(getObjectFromGUID(Setup.Skullport.BuildingsId))
     
   else
-    -- Move all things skullport to the skullport bag
-    local bag = getObjectFromGUID(Setup.Skullport.BagId)
-    
-    bag.putObject(getObjectFromGUID(Setup.Skullport.QuestsId))
-    bag.putObject(getObjectFromGUID(Setup.Skullport.IntrigueId))
-    bag.putObject(getObjectFromGUID(Setup.Skullport.LordsId))
-    bag.putObject(getObjectFromGUID(Setup.Skullport.BuildingsId))
-    bag.putObject(getObjectFromGUID(Setup.Skullport.BoardId))
-    bag.putObject(getObjectFromGUID(Setup.Skullport.CorruptionBoardId))
-    
-    local first = true
-    for i, skull in pairs(Setup.Skullport.CorruptionTokenIds) do
-      if first then
-        -- Save one
-        bag.putObject(getObjectFromGUID(skull))
-        first = false
-      else
-        -- Delete the rest
-        destroyObject(getObjectFromGUID(skull))
-      end
-    end
+    Setup.packUpSkullport()
   end
   
   if useUndermountain then
@@ -205,6 +244,19 @@ function setupGame()
     bag.putObject(getObjectFromGUID(Setup.Undermountain.BoardId))
   end
   
+  questDeck.shuffle()
+  intrigueDeck.shuffle()
+  lordsDeck.shuffle()
+  buildingDeck.shuffle()
+  
+  coroutine.yield(0)
+  
+  Setup.deal(intrigueDeck, lordsDeck, questDeck)
+  
+  Buildings.refill()
+  Quests.refill()
+  
+  return 1
 end
 
 -- This assumes that there is 1 worker locked to the round-5 slot
@@ -213,9 +265,77 @@ function removeExtraAgents(correctNumberOfAgents)
     local deletable = getUnlockedInSet(home.pawnIds)
     local numberToDelete = # deletable - correctNumberOfAgents
     
-    -- Not that it matters, but delete from the end of the list
+    -- Not that it matters, but remove things from the end of the list
     for k=correctNumberOfAgents + 1, (numberToDelete + correctNumberOfAgents) do
-      destroyObject(getObjectFromGUID(home.pawnIds[k]))
+      Setup.unusedBitsBag.putObject(getObjectFromGUID(home.pawnIds[k]))
+    end
+  end
+end
+
+function Setup.packUpSkullport()
+  -- Move all things skullport to the skullport bag
+  local bag = getObjectFromGUID(Setup.Skullport.BagId)
+  
+  bag.putObject(getObjectFromGUID(Setup.Skullport.QuestsId))
+  bag.putObject(getObjectFromGUID(Setup.Skullport.IntrigueId))
+  bag.putObject(getObjectFromGUID(Setup.Skullport.LordsId))
+  bag.putObject(getObjectFromGUID(Setup.Skullport.BuildingsId))
+  bag.putObject(getObjectFromGUID(Setup.Skullport.BoardId))
+  bag.putObject(getObjectFromGUID(Setup.Skullport.CorruptionBoardId))
+  
+  -- Clear out the corruption
+  local first = true
+  for i, skull in pairs(Setup.Skullport.CorruptionTokenIds) do
+    if first then
+      -- Save one
+      bag.putObject(getObjectFromGUID(skull))
+      first = false
+    else
+      -- Delete the rest
+      destroyObject(getObjectFromGUID(skull))
+    end
+  end
+  
+  -- Clear out the corruption bags
+  first = true
+  for i, corruptionBag in pairs(Setup.Skullport.CorruptionBagIds) do
+    if first then
+      -- Save one
+      bag.putObject(getObjectFromGUID(corruptionBag))
+      first = false
+    else
+      -- Delete the rest
+      destroyObject(getObjectFromGUID(corruptionBag))
+    end
+  end
+  
+  -- Move the extra agent to the middle
+  local extraAgent = getObjectFromGUID(Setup.extraAgentId)
+  extraAgent.setPosition({38.18, 2.23, -0.04})
+end
+
+function Setup.deal(intrigueDeck, lordsDeck, questDeck)
+  intrigueDeck.deal(2)
+  lordsDeck.deal(1)
+  
+  for i, player in pairs(Player.getPlayers()) do
+    if player.seated then
+      -- Deal this seat two Quests
+      local board = getObjectFromGUID(Setup.homes[player.color].boardId)
+      local firstCardOffset = vector(9.5, 3, -5)
+      local secondCardOffset = vector(9.5, 3, 1)
+      questDeck.takeObject({
+        position          = board.positionToWorld(firstCardOffset),
+        rotation          = board.getRotation(),
+      })
+      questDeck.takeObject({
+        position          = board.positionToWorld(secondCardOffset),
+        rotation          = board.getRotation(),
+      })
+      
+      -- Move the player's scoring marker to the start
+      local scoreMarker = getObjectFromGUID(Setup.homes[player.color].scoreMarkerId)
+      scoreMarker.setPosition({34.13, 5, 15.54})
     end
   end
 end
