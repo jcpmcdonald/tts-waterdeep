@@ -12,11 +12,16 @@ Setup.lordsDeckId = 'f21c5c'
 Setup.promoCardId = '594968'
 Setup.extraAgentId = '8a5af4'
 
+Setup.rulesId = 'e0d804'
+Setup.expansionRulesId = '455686'
+
+Setup.singleExpansionBoardPosition = vector(-13.60, 1.50, 0.00)
+
 Setup.Skullport = {
   BagId = '559934',
   QuestsId = '71612e',
   IntrigueId = '1e1263',
-  LordsId = '805a6a',
+  LordsId = 'cb881e',
   BuildingsId = 'e676a2',
   BoardId = '7f9acf',
   CorruptionBoardId = '8bf62f',
@@ -31,7 +36,7 @@ Setup.Undermountain = {
   BagId = 'bdb0bd',
   QuestsId = '8ac214',
   IntrigueId = 'f08d48',
-  LordsId = '54f0e3',
+  LordsId = 'e1e93d',
   BuildingsId = '2fa30b',
   BoardId = '8c3d4e',
 }
@@ -244,6 +249,21 @@ function setupGame_Coroutine()
     bag.putObject(getObjectFromGUID(Setup.Undermountain.BoardId))
   end
   
+  -- If only using one expansion, move the expansion board to the middle
+  if useUndermountain and not useSkullport then
+    getObjectFromGUID(Setup.Undermountain.BoardId).setPosition(Setup.singleExpansionBoardPosition)
+  end
+  if not useUndermountain and useSkullport then
+    getObjectFromGUID(Setup.Skullport.BoardId).setPosition(Setup.singleExpansionBoardPosition)
+  end
+  
+  if not useSkullport and not useUndermountain then
+    Setup.unusedBitsBag.putObject(getObjectFromGUID(Setup.expansionRulesId))
+    
+    -- Move the main rules over
+    getObjectFromGUID(Setup.rulesId).setPosition({-45.50, 1.6, -0.11})
+  end
+  
   lordsDeck.setPosition({-39.45, 1.60, -30.00})
   
   questDeck.shuffle()
@@ -254,6 +274,16 @@ function setupGame_Coroutine()
   coroutine.yield(0)
   
   Setup.deal(intrigueDeck, lordsDeck, questDeck)
+  
+  coroutine.yield(0)
+  coroutine.yield(0)
+  coroutine.yield(0)
+  coroutine.yield(0)
+  coroutine.yield(0)
+  coroutine.yield(0)
+  coroutine.yield(0)
+  coroutine.yield(0)
+  coroutine.yield(0)
   
   Buildings.refill()
   Quests.refill()
