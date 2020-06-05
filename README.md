@@ -2,9 +2,10 @@
 
 ## Getting Started
 You need:
-- Tabletop Simulator
-- Atom
-- Tabletop Simulator official plugin for Atom
+
+* Tabletop Simulator
+* Atom
+* Tabletop Simulator official plugin for Atom
 
 Follow a guide to get Atom set up with Tabletop Simulator (I used this: http://blog.onelivesleft.com/2017/08/atom-tabletop-simulator-package.html)
 
