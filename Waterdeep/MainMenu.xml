@@ -12,8 +12,6 @@
   height="900"
   width="711"
   color="rgba(0,0,0,1)"
-  hideAnimation="FadeOut"
-  animationDuration="0.2"
   allowDragging="true"
   returnToOriginalPositionWhenReleased="false">
     <Image image="Cover" />
@@ -40,7 +38,7 @@
     <Panel
       height="100"
       width="711"
-      offsetXY="0 -120">
+      offsetXY="0 -100">
       <Text
         text="Number of Players"
         fontSize="20"
@@ -67,7 +65,7 @@
         onValueChanged="onToggle"
         height="40"
         width="250"
-        offsetXY="0 50">
+        offsetXY="0 70">
         <Text id="UseSkullportText" text="Skullport Expansion" />
       </Toggle>
       <Toggle
@@ -75,23 +73,39 @@
         onValueChanged="onToggle"
         height="40"
         width="250"
-        offsetXY="0 0">
+        offsetXY="0 20">
         <Text id="UseUndermountainText" text="Undermountain Expansion" /></Toggle>
       <Toggle
         id="LongGame"
         onValueChanged="onToggle"
         height="40"
         width="250"
-        offsetXY="0 -50"
-        tooltip="Gives all players an extra meeple. Not for use with 6 players. Mandatory when using both expansions.">
+        offsetXY="0 -30"
+        tooltip="Gives all players an extra meeple. Mandatory when using both expansions. 6 player games are always long games.">
         <Text id="LongGameText" text="Long Game" />
+      </Toggle>
+      <Toggle
+        id="Promo"
+        onValueChanged="onToggle"
+        height="40"
+        width="250"
+        offsetXY="0 -80"
+        tooltip="Promo card given out at GenCon 2013.">
+        <Text id="PromoText" text='"Rapid Expansion" Promo Card' />
       </Toggle>
       <Button
         height="40"
-        width="150"
-        offsetXY="0 -100"
+        width="130"
+        offsetXY="-75 -130"
         onClick="setupGame">
         Start Game
+      </Button>
+      <Button
+        height="40"
+        width="130"
+        offsetXY="75 -130"
+        onClick="skipSetup">
+        Skip Setup
       </Button>
     </Panel>
     
