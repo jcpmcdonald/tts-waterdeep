@@ -14,6 +14,92 @@ function FillUtil.fill(slots, deckId)
   end
 end
 
+function FillUtil.getDeck(drawZoneId, discardZoneId, exceptions)
+  local objectsInDrawArea = getUnlockedIn(drawZoneId, exceptions)
+  if # objectsInDrawArea >= 1 then
+    local bestBet = nil
+    for i, obj in pairs(objectsInDrawArea) do
+      if obj.name == "Deck" then
+        return obj
+      elseif obj.name == "Card" then
+        -- Last cards of decks are a bit.... funky. Wait for a sec to see if it settles
+        FillUtil.idleForABit()
+        if obj.resting then
+          bestBet = obj
+        end
+      end
+    end
+    
+    if bestBet ~= nil then
+      return bestBet
+    end
+  end
+  
+  return FillUtil.shuffleDiscardToDrawPile(discardZoneId, drawZoneId)
+end
+
+function FillUtil.shuffleDiscardToDrawPile(discardZoneId, drawZoneId)
+  local objectsInDiscardArea = getUnlockedIn(discardZoneId)
+  
+  if # objectsInDiscardArea == 1 then
+    -- Flip, shuffle, and put in the draw area
+    local discardPile = objectsInDiscardArea[1]
+    local drawPosition = getObjectFromGUID(drawZoneId).getPosition()
+    discardPile.setPosition(vector(drawPosition.x, drawPosition.y + 3, drawPosition.z))
+    discardPile.flip()
+    discardPile.shuffle()
+    
+    -- Let the discard settle
+    FillUtil.idleForABit()
+    return discardPile
+  else
+    print("NO discard pile!")
+    return nil
+  end
+end
+
+function FillUtil.fillFromZone(slots, drawZoneId, discardZoneId)
+  function fillCoroutine()
+    FillUtil.idleForABit()
+    for k, slot in pairs(slots) do
+      local cardInSlot = getUnlockedIn(slot.sensorId)
+      if # cardInSlot == 0 then
+        -- Add a new card to this slot
+        local success = FillUtil.fillSlot(slot, drawZoneId, discardZoneId)
+        -- Let any card we take actually register as not resting
+        FillUtil.idleForABit()
+        
+        if not success then
+          -- try once more
+          success = FillUtil.fillSlot(slot, drawZoneId, discardZoneId)
+          FillUtil.idleForABit()
+          
+          if not success then
+            print("There was an issue filling slots. Please try again")
+          end
+        end
+      end
+    end
+    return 1
+  end
+  startLuaCoroutine(Global, "fillCoroutine")
+end
+
+function FillUtil.fillSlot(slot, drawZoneId, discardZoneId)
+  local deck = FillUtil.getDeck(drawZoneId, discardZoneId)
+  if deck == nil then
+    return false
+  end
+  
+  if deck.name == "Deck" then
+    deck.takeObject(slot)
+  elseif deck.name == "Card" then
+    deck.setPositionSmooth(slot.position, false, false)
+    deck.setRotation(slot.rotation)
+  end
+  return true
+end
+
 function FillUtil.clear(slots, discardLocation, flip)
   for k, slot in pairs(slots) do
     local cardInSlot = getUnlockedIn(slot.sensorId)
@@ -24,4 +110,29 @@ function FillUtil.clear(slots, discardLocation, flip)
       card.setPositionSmooth(discardLocation, false, false)
     end
   end
+end
+
+function FillUtil.idleForABit()
+  coroutine.yield(0)
+  coroutine.yield(0)
+  coroutine.yield(0)
+  coroutine.yield(0)
+  coroutine.yield(0)
+  coroutine.yield(0)
+  coroutine.yield(0)
+  coroutine.yield(0)
+  coroutine.yield(0)
+  coroutine.yield(0)
+  coroutine.yield(0)
+  coroutine.yield(0)
+  coroutine.yield(0)
+  coroutine.yield(0)
+  coroutine.yield(0)
+  coroutine.yield(0)
+  coroutine.yield(0)
+  coroutine.yield(0)
+  coroutine.yield(0)
+  coroutine.yield(0)
+  coroutine.yield(0)
+  coroutine.yield(0)
 end

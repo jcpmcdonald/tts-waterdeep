@@ -25,6 +25,8 @@ Quests.refillQuestsButton = {
 }
 
 Quests.questDeckId = '143f20'
+Quests.questDrawZoneId = '7e3767'
+Quests.questDiscardZoneId = 'e0d4c5'
 Quests.slots = {
   {
     sensorId = 'b194f0',
@@ -57,7 +59,7 @@ end
 function resetQuests() Quests.reset() end
 function Quests.reset()
   Quests.clear()
-  Wait.time(Quests.refill, 0.6)
+  Wait.condition(Quests.refill, Quests.discardIsResting, 2, Quests.refill)
 end
 
 function Quests.clear()
@@ -66,5 +68,14 @@ end
 
 function refillQuests() Quests.refill() end
 function Quests.refill()
-  FillUtil.fill(Quests.slots, Quests.questDeckId)
+  print("refilling")
+  FillUtil.fillFromZone(Quests.slots, Quests.questDrawZoneId, Quests.questDiscardZoneId)
+end
+
+function Quests.discardIsResting()
+  local objectsInDiscardArea = getUnlockedIn(Quests.questDiscardZoneId)
+  if # objectsInDiscardArea == 1  then
+    return objectsInDiscardArea[1].resting
+  end
+  return false
 end
