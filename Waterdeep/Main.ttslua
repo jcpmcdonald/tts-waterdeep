@@ -1,9 +1,9 @@
 --
-#include ../Dev
-#include ../Utils
-#include ../FillUtil
-#include ../ReturnHome
-#include ../ResourceSpawner
+#include ../Common/Dev
+#include ../Common/Utils
+#include ../Common/ReturnHome
+#include ../Common/FillUtil
+#include ../Common/ResourceSpawner
 #include QuestMaintenance
 #include BuildingMaintenance
 #include Ambassador
