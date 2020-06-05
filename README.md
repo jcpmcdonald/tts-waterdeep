@@ -1,5 +1,7 @@
 # Lords of Waterdeep implementation in Tabletop Simulator
 
+This is the Lua scripts for a Lords of Waterdeep implmentation in Tabletop Simulator: https://steamcommunity.com/sharedfiles/filedetails/?id=2117313569
+
 ## Getting Started
 You need:
 
